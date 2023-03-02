@@ -12,7 +12,7 @@
         ulong Identifier { get; }
 
         /// <summary>
-        /// Static evaluation value. TODO: From which player's point of view?
+        /// The <see href="https://en.wikipedia.org/wiki/Evaluation_function">static evaluation value</see> from the solver's point of view.
         /// </summary>
         sbyte Value { get; }
 
