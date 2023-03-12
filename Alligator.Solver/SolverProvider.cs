@@ -1,4 +1,7 @@
-﻿namespace Alligator.Solver
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Alligator.Test")] // TODO: move this into an assemply-info file!
+namespace Alligator.Solver
 {
     /// <summary>
     /// Provides the solver instances.
