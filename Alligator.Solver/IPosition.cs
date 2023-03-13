@@ -3,8 +3,8 @@
     /// <summary>
     /// Represents the game board.
     /// </summary>
-    /// <typeparam name="TMove">type of moves in the specified game</typeparam>
-    public interface IPosition<TMove>
+    /// <typeparam name="TStep">type of steps in the specified game</typeparam>
+    public interface IPosition<TStep>
     {
         /// <summary>
         /// Unique identifier or very strong hash, e.g. <see href="https://en.wikipedia.org/wiki/Zobrist_hashing">Zobrist hashing</see>.
@@ -17,13 +17,13 @@
         sbyte Value { get; }
 
         /// <summary>
-        /// Updates the position with the specified move.
+        /// Updates the position with the specified step.
         /// </summary>
-        /// <param name="move">specified move</param>
-        void Take(TMove move);
+        /// <param name="step">specified step</param>
+        void Take(TStep step);
 
         /// <summary>
-        /// Withdraws the last move.
+        /// Withdraws the last step.
         /// </summary>
         void TakeBack();
     }

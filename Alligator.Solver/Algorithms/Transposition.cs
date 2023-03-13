@@ -1,18 +1,18 @@
 ﻿namespace Alligator.Solver.Algorithms
 {
-    internal class Transposition<TMove>
+    internal class Transposition<TStep>
     {
         public EvaluationMode EvaluationMode;
         public int Value;
         public int Depth;
-        public TMove BestStrategy;
+        public TStep optimalStep;
 
-        public Transposition(EvaluationMode evaluationMode, int value, int depth, TMove bestStrategy)
+        public Transposition(EvaluationMode evaluationMode, int value, int depth, TStep optimalStep)
         {
             EvaluationMode = evaluationMode;
             Value = value;
             Depth = depth;
-            BestStrategy = bestStrategy;
+            this.optimalStep = optimalStep;
         }
     }
 }

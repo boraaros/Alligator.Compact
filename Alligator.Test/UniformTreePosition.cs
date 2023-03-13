@@ -17,9 +17,9 @@ namespace Alligator.Test
             Identifier = 0L;
         }
 
-        public void Take(int move)
+        public void Take(int step)
         {
-            Identifier = degree * Identifier + (ulong)move + 1;
+            Identifier = degree * Identifier + (ulong)step + 1;
         }
 
         public void TakeBack()
