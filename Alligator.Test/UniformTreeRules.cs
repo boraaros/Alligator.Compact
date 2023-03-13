@@ -23,7 +23,7 @@ namespace Alligator.Test
             return position.Value == sbyte.MinValue || position.Value == sbyte.MaxValue;
         }
 
-        public IEnumerable<int> LegalMovesAt(UniformTreePosition position)
+        public IEnumerable<int> LegalStepsAt(UniformTreePosition position)
         {
             for (int i = 0; i < degree; i++)
             {

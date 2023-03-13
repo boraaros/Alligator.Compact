@@ -1,51 +1,51 @@
 ﻿namespace Alligator.Solver.Algorithms
 {
-    internal class AlphaBetaSolver<TPosition, TMove> : ISolver<TMove>
-        where TPosition : IPosition<TMove>
+    internal class AlphaBetaSolver<TPosition, TStep> : ISolver<TStep>
+        where TPosition : IPosition<TStep>
     {
-        private readonly AlphaBetaPruning<TPosition, TMove> alphaBetaPruning;
-        private readonly IRules<TPosition, TMove> rules;
+        private readonly AlphaBetaPruning<TPosition, TStep> alphaBetaPruning;
+        private readonly IRules<TPosition, TStep> rules;
 
         public AlphaBetaSolver(
-            AlphaBetaPruning<TPosition, TMove> alphaBetaPruning, 
-            IRules<TPosition, TMove> rules)
+            AlphaBetaPruning<TPosition, TStep> alphaBetaPruning, 
+            IRules<TPosition, TStep> rules)
         {
             this.alphaBetaPruning = alphaBetaPruning ?? throw new ArgumentNullException(nameof(alphaBetaPruning));
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
         }
 
-        public TMove OptimizeNextMove(IList<TMove> moveHistory)
+        public TStep OptimizeNextStep(IList<TStep> history)
         {
-            var position = CreatePosition(moveHistory);
+            var position = CreatePosition(history);
 
-            var bestMove = default(TMove);
+            var bestStep = default(TStep);
             var bestValue = -sbyte.MaxValue;
 
-            foreach (var move in rules.LegalMovesAt(position))
+            foreach (var step in rules.LegalStepsAt(position))
             {
-                position.Take(move);
+                position.Take(step);
                 var result = -alphaBetaPruning.Search(position, bestValue, sbyte.MaxValue);
                 if (result > bestValue)
                 {
                     bestValue = result;
-                    bestMove = move;
+                    bestStep = step;
                 }
                 position.TakeBack();
             }
-            return bestMove;
+            return bestStep;
         }
 
-        private TPosition CreatePosition(IEnumerable<TMove> moveHistory)
+        private TPosition CreatePosition(IEnumerable<TStep> history)
         {
             var position = rules.InitialPosition();
-            foreach (var move in moveHistory)
+            foreach (var step in history)
             {
-                position.Take(move);
+                position.Take(step);
             }
 
-            if (!rules.LegalMovesAt(position).Any())
+            if (!rules.LegalStepsAt(position).Any())
             {
-                throw new InvalidOperationException("Next move calculation failed because the game is already over");
+                throw new InvalidOperationException("Next step calculation failed because the game is already over");
             }
 
             return position;

@@ -1,15 +1,15 @@
 ﻿namespace Alligator.Solver.Algorithms
 {
-    internal class AlphaBetaPruning<TPosition, TMove> : IAlphaBetaPruning<TPosition>
-        where TPosition : IPosition<TMove>
+    internal class AlphaBetaPruning<TPosition, TStep> : IAlphaBetaPruning<TPosition>
+        where TPosition : IPosition<TStep>
     {
-        private readonly IRules<TPosition, TMove> rules;
-        private readonly ICacheTables<TPosition, TMove> cacheTables;
+        private readonly IRules<TPosition, TStep> rules;
+        private readonly ICacheTables<TPosition, TStep> cacheTables;
         private readonly ISearchManager searchManager;
 
         public AlphaBetaPruning(
-            IRules<TPosition, TMove> rules, 
-            ICacheTables<TPosition, TMove> cacheTables, 
+            IRules<TPosition, TStep> rules, 
+            ICacheTables<TPosition, TStep> cacheTables, 
             ISearchManager searchManager)
         {
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
@@ -26,7 +26,7 @@
         {
             var originalAlpha = alpha;
 
-            if (cacheTables.TryGetTransposition(position, out Transposition<TMove> transposition) 
+            if (cacheTables.TryGetTransposition(position, out Transposition<TStep> transposition) 
                 && depth <= transposition.Depth)
             {
                 switch (transposition.EvaluationMode)
@@ -42,7 +42,7 @@
                 }
                 if (IsBetaCutOff(alpha, beta))
                 {
-                    HandleBetaCutOff(transposition.BestStrategy, depth);
+                    HandleBetaCutOff(transposition.optimalStep, depth);
                     return transposition.Value;
                 }
             }
@@ -51,30 +51,30 @@
                 return -HeuristicValue(position, depth);
             }
             var bestValue = -int.MaxValue;
-            TMove besTMove = default;
+            TStep bestStep = default;
 
-            foreach (var move in rules.LegalMovesAt(position))
+            foreach (var step in rules.LegalStepsAt(position))
             {
-                position.Take(move);
+                position.Take(step);
                 var value = -SearchRecursively(position, depth - 1, -beta, -alpha);
                 position.TakeBack();
 
                 if (value > bestValue)
                 {
                     bestValue = value;
-                    besTMove = move;
+                    bestStep = step;
                 }
                 alpha = Math.Max(alpha, value);
                 if (IsBetaCutOff(alpha, beta))
                 {
-                    HandleBetaCutOff(move, depth);
+                    HandleBetaCutOff(step, depth);
                     break;
                 }
             }
             if (depth > 0)
             {
                 EvaluationMode evaluationMode = GetEvaluationMode(bestValue, originalAlpha, beta);
-                transposition = new Transposition<TMove>(evaluationMode, bestValue, depth, besTMove);
+                transposition = new Transposition<TStep>(evaluationMode, bestValue, depth, bestStep);
                 cacheTables.AddTransposition(position, transposition);
             }
             return bestValue;
@@ -85,14 +85,14 @@
             return alpha >= beta;
         }
 
-        private void HandleBetaCutOff(TMove move, int depth)
+        private void HandleBetaCutOff(TStep step, int depth)
         {
-            // TODO: it could help at move ordering!
+            // TODO: it could help at step ordering!
         }
 
         private bool IsLeaf(TPosition position, int depth)
         {
-            return depth <= 0 || !rules.LegalMovesAt(position).Any();
+            return depth <= 0 || !rules.LegalStepsAt(position).Any();
         }
 
         private EvaluationMode GetEvaluationMode(int value, int alpha, int beta)
@@ -113,7 +113,7 @@
 
         private int HeuristicValue(TPosition position, int depth)
         {
-            if (rules.LegalMovesAt(position).Any())
+            if (rules.LegalStepsAt(position).Any())
             {
                 if (!cacheTables.TryGetValue(position, out var value))
                 {

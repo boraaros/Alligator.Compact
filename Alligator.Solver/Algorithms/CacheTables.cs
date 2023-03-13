@@ -1,10 +1,10 @@
 ﻿namespace Alligator.Solver.Algorithms
 {
-    internal class CacheTables<TPosition, TMove> : ICacheTables<TPosition, TMove>
+    internal class CacheTables<TPosition, TStep> : ICacheTables<TPosition, TStep>
     {
         // TODO: cache implementations!
 
-        public void AddTransposition(TPosition position, Transposition<TMove> transposition)
+        public void AddTransposition(TPosition position, Transposition<TStep> transposition)
         {
         }
 
@@ -12,7 +12,7 @@
         {
         }
 
-        public bool TryGetTransposition(TPosition position, out Transposition<TMove> transposition)
+        public bool TryGetTransposition(TPosition position, out Transposition<TStep> transposition)
         {
             transposition = null;
             return false;

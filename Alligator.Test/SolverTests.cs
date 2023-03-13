@@ -38,10 +38,10 @@ namespace Alligator.Test
             var solver = new AlphaBetaSolver<UniformTreePosition, int>(alphabeta, rules);
 
             // Act
-            var bestMove = solver.OptimizeNextMove(new List<int>());
+            var bestStep = solver.OptimizeNextStep(new List<int>());
 
             // Assert
-            Assert.AreEqual(0, bestMove);
+            Assert.AreEqual(0, bestStep);
         }
     }
 }
