@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Alligator.Solver.Algorithms;
+using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Alligator.Test")] // TODO: move this into an assemply-info file!
 namespace Alligator.Solver
@@ -9,6 +10,7 @@ namespace Alligator.Solver
     /// <typeparam name="TPosition">type of positions in the specified game</typeparam>
     /// <typeparam name="TStep">type of steps in the specified game</typeparam>
     public class SolverProvider<TPosition, TStep>
+        where TPosition : IPosition<TStep>
     {
         private readonly IRules<TPosition, TStep> rules;
         private readonly IConfiguration solverConfiguration;
@@ -30,7 +32,9 @@ namespace Alligator.Solver
         /// <returns>solver instance</returns>
         public ISolver<TStep> Create()
         {
-            throw new NotImplementedException("There is no solver implementation yet.");
+            var cacheTables = new CacheTables<TPosition, TStep>();
+            var searchManager = new SearchManager(10);
+            return new AlphaBetaSolver<TPosition, TStep>(new AlphaBetaPruning<TPosition, TStep>(rules, cacheTables, searchManager), rules);
         }
     }
 }
