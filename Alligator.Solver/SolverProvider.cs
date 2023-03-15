@@ -33,7 +33,7 @@ namespace Alligator.Solver
         public ISolver<TStep> Create()
         {
             var cacheTables = new CacheTables<TPosition, TStep>();
-            var searchManager = new SearchManager(10);
+            var searchManager = new SearchManager(4);
             return new AlphaBetaSolver<TPosition, TStep>(new AlphaBetaPruning<TPosition, TStep>(rules, cacheTables, searchManager), rules);
         }
     }
