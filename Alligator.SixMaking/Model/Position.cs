@@ -148,7 +148,30 @@
 
         public sbyte StaticEvaluate()
         {
-            return 0; // TODO: implement the evaluation function!
+            int value = 0;
+
+            for (int i = 0; i < 25; i++)
+            {
+                var h = ColumnHeightAt(i);
+
+                if (h == 0) continue;
+
+                if (DiskAt(i, h - 1) == Disk.Red)
+                {
+                    value += h;
+                }
+                else
+                {
+                    value -= h;
+                }
+            }
+
+            if (value > sbyte.MaxValue || value < -sbyte.MaxValue)
+            {
+                throw new InvalidOperationException("invalid value");
+            }
+
+            return (sbyte)value;
         }
     }
 }
