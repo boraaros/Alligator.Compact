@@ -21,10 +21,9 @@ namespace Alligator.SixMaking.Logics
 
         public IEnumerable<Step> LegalStepsAt(IPosition position)
         {
-            var result = new List<Step>();
             if (IsGoal(position))
             {
-                return result;
+                yield break;
             }
 
             for (int cell = 0; cell < Constants.BoardSize * Constants.BoardSize; cell++)
@@ -33,9 +32,9 @@ namespace Alligator.SixMaking.Logics
 
                 if (columnHeight == 0)
                 {
-                    result.Add(stepPool.GetPlacement(cell));
+                    yield return stepPool.GetPlacement(cell);
                 }
-                else
+                if (columnHeight > 0)
                 {
                     var isOwnTower = position.Next == position.DiskAt(cell, columnHeight - 1);
 
@@ -52,17 +51,17 @@ namespace Alligator.SixMaking.Logics
 
                             if (position.ColumnHeightAt(to) < Constants.WinnerHeight - diskCount)
                             {
-                                result.Add(move);
+                                yield return move;
                             }
                             else if (isOwnTower)
                             {
-                                return new List<Step> { move };
+                                yield return move;
+                                yield break;
                             }
                         }
                     }
                 }
             }
-            return result;
         }       
 
         public bool IsGoal(IPosition position)
