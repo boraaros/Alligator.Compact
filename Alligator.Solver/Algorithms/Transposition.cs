@@ -5,14 +5,14 @@
         public EvaluationMode EvaluationMode;
         public int Value;
         public int Depth;
-        public TStep optimalStep;
+        public TStep OptimalStep;
 
         public Transposition(EvaluationMode evaluationMode, int value, int depth, TStep optimalStep)
         {
             EvaluationMode = evaluationMode;
             Value = value;
             Depth = depth;
-            this.optimalStep = optimalStep;
+            OptimalStep = optimalStep;
         }
     }
 }
