@@ -33,8 +33,9 @@ namespace Alligator.Test
 
             var rules = new UniformTreeRules(valuesById, degree);
             var cacheTables = new CacheTables<UniformTreePosition, int>();
+            var heuristicTables = new HeuristicTables<int>();
             var searchManager = new SearchManager(depth - 1);
-            var alphabeta = new AlphaBetaPruning<UniformTreePosition, int>(rules, cacheTables, searchManager);
+            var alphabeta = new AlphaBetaPruning<UniformTreePosition, int>(rules, cacheTables, heuristicTables, searchManager);
             var solver = new AlphaBetaSolver<UniformTreePosition, int>(alphabeta, rules);
 
             // Act

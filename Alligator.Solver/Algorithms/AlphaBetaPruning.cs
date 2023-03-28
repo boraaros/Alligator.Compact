@@ -5,15 +5,18 @@
     {
         private readonly IRules<TPosition, TStep> rules;
         private readonly ICacheTables<TPosition, TStep> cacheTables;
+        private readonly IHeuristicTables<TStep> heuristicTables;
         private readonly ISearchManager searchManager;
 
         public AlphaBetaPruning(
             IRules<TPosition, TStep> rules, 
             ICacheTables<TPosition, TStep> cacheTables, 
+            IHeuristicTables<TStep> heuristicTables,
             ISearchManager searchManager)
         {
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
             this.cacheTables = cacheTables ?? throw new ArgumentNullException(nameof(cacheTables));
+            this.heuristicTables = heuristicTables ?? throw new ArgumentNullException(nameof(heuristicTables));
             this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
         }
 
@@ -42,7 +45,7 @@
                 }
                 if (IsBetaCutOff(alpha, beta))
                 {
-                    HandleBetaCutOff(transposition.optimalStep, depth);
+                    HandleBetaCutOff(transposition.OptimalStep, depth);
                     return transposition.Value;
                 }
             }
@@ -53,7 +56,7 @@
             var bestValue = -int.MaxValue;
             TStep bestStep = default;
 
-            foreach (var step in rules.LegalStepsAt(position))
+            foreach (var step in OrderedLegalStepsAt(position, depth))
             {
                 position.Take(step);
                 var value = -SearchRecursively(position, depth - 1, -beta, -alpha);
@@ -80,6 +83,33 @@
             return bestValue;
         }
 
+        private IEnumerable<TStep> OrderedLegalStepsAt(TPosition position, int depth)
+        {
+            TStep prevOptimalStep = default(TStep);
+            if (cacheTables.TryGetTransposition(position, out Transposition<TStep> transposition))
+            {
+                yield return transposition.OptimalStep;
+                prevOptimalStep = transposition.OptimalStep;
+            }
+            var prevKillerSteps = heuristicTables.GetKillerSteps(depth);
+            var otherSteps = new List<TStep>();
+            foreach (var move in rules.LegalStepsAt(position).Where(t => !t.Equals(prevOptimalStep)))
+            {
+                if (prevKillerSteps.Contains(move))
+                {
+                    yield return move;
+                }
+                else
+                {
+                    otherSteps.Add(move);
+                }
+            }
+            foreach (var move in otherSteps)
+            {
+                yield return move;
+            }
+        }
+
         private bool IsBetaCutOff(int alpha, int beta)
         {
             return alpha >= beta;
@@ -87,7 +117,7 @@
 
         private void HandleBetaCutOff(TStep step, int depth)
         {
-            // TODO: it could help at step ordering!
+            heuristicTables.StoreBetaCutOff(step, depth);
         }
 
         private bool IsLeaf(TPosition position, int depth)
