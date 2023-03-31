@@ -4,9 +4,10 @@
     {
         private readonly Disk[,] board;
         private readonly int[] heights;
-        private readonly IList<Step> history;
         private Disk winner;
-        private Disk next;
+        
+        public Disk Next { get; private set; }
+        public IList<Step> History { get; }
 
         private const int HashParamsLength = 251;
         private readonly IHashing hashing = new ZobristHashing(HashParamsLength);
@@ -16,8 +17,8 @@
             board = new Disk[Constants.BoardSize * Constants.BoardSize, (Constants.WinnerHeight - 1) * (Constants.WinnerHeight - 1)];
             heights = new int[Constants.BoardSize * Constants.BoardSize];
             winner = Disk.None;
-            history = new List<Step>();
-            next = Disk.Red;
+            History = new List<Step>();
+            Next = Disk.Red;
         }
 
         public Position(IList<Step> history)
@@ -29,21 +30,15 @@
             }
         }
 
-        public sbyte Value => StaticEvaluate();
+        public bool IsOver => winner != Disk.None;
 
-        public Disk Next
-        {
-            get { return next; }
-        }
+        public Step LastStep => History.LastOrDefault();
+
+        public sbyte Value => StaticEvaluate();
 
         public ulong Identifier
         {
             get { return hashing.HashCode + /*(LastStep != null ? (ulong)LastStep.Identifier :*/ 0UL; } // TODO: resolve this!
-        }
-
-        public Step LastStep
-        {
-            get { return history.LastOrDefault(); }
         }
 
         public int ColumnHeightAt(int position)
@@ -56,11 +51,6 @@
             return board[position, height];
         }
 
-        public IList<Step> History
-        {
-            get { return history; }
-        }
-
         public void Take(Step step)
         {
             if (winner != Disk.None)
@@ -69,37 +59,37 @@
             }
             if (step.From == -1)
             {
-                board[step.To, 0] = next;
+                board[step.To, 0] = Next;
                 heights[step.To] = 1;
-                hashing.Modify(ZobristIndex(step.To, 0, next));
+                hashing.Modify(ZobristIndex(step.To, 0, Next));
             }
             else
             {
                 Move(step.From, step.To, step.Count);
             }
-            history.Add(step);
+            History.Add(step);
             ChangeNext();
         }
 
         public void TakeBack()
         {
-            if (history.Count == 0)
+            if (History.Count == 0)
             {
                 throw new InvalidOperationException("There is no step in history yet");
             }
             ChangeNext();
-            var lastStep = history[history.Count - 1];
+            var lastStep = History[History.Count - 1];
             if (lastStep.From == -1)
             {
                 board[lastStep.To, 0] = Disk.None;
                 heights[lastStep.To] = 0;
-                hashing.Modify(ZobristIndex(lastStep.To, 0, next));
+                hashing.Modify(ZobristIndex(lastStep.To, 0, Next));
             }
             else
             {
                 Move(lastStep.To, lastStep.From, lastStep.Count);
             }
-            history.RemoveAt(history.Count - 1);   
+            History.RemoveAt(History.Count - 1);   
         }
 
         private void Move(int from, int to, int count)
@@ -125,7 +115,7 @@
 
         private void ChangeNext()
         {
-            next = 3 - next;
+            Next = 3 - Next;
             hashing.Modify(HashParamsLength - 1);
         }
 

@@ -9,5 +9,6 @@ namespace Alligator.SixMaking.Model
         IList<Step> History { get; }
         int ColumnHeightAt(int cell);
         Disk DiskAt(int cell, int height);
+        bool IsOver { get; }
     }
 }

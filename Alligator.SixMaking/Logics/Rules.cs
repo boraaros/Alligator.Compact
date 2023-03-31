@@ -21,7 +21,7 @@ namespace Alligator.SixMaking.Logics
 
         public IEnumerable<Step> LegalStepsAt(IPosition position)
         {
-            if (IsGoal(position))
+            if (position.IsOver)
             {
                 yield break;
             }
@@ -30,10 +30,6 @@ namespace Alligator.SixMaking.Logics
             {
                 var columnHeight = position.ColumnHeightAt(cell);
 
-                if (columnHeight == 0)
-                {
-                    yield return stepPool.GetPlacement(cell);
-                }
                 if (columnHeight > 0)
                 {
                     var isOwnTower = position.Next == position.DiskAt(cell, columnHeight - 1);
@@ -62,12 +58,21 @@ namespace Alligator.SixMaking.Logics
                     }
                 }
             }
-        }       
+
+            for (int cell = 0; cell < Constants.BoardSize * Constants.BoardSize; cell++)
+            {
+                var columnHeight = position.ColumnHeightAt(cell);
+
+                if (columnHeight == 0)
+                {
+                    yield return stepPool.GetPlacement(cell);
+                }
+            }
+        }
 
         public bool IsGoal(IPosition position)
         {
-            return Enumerable.Range(0, Constants.BoardSize * Constants.BoardSize)
-                .Any(t => position.ColumnHeightAt(t) >= Constants.WinnerHeight);
+            return position.IsOver;
         }
     }
 }
