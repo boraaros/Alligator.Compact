@@ -74,7 +74,7 @@
                     break;
                 }
             }
-            if (depth > 0)
+            if (depth > 1)
             {
                 EvaluationMode evaluationMode = GetEvaluationMode(bestValue, originalAlpha, beta);
                 transposition = new Transposition<TStep>(evaluationMode, bestValue, depth, bestStep);

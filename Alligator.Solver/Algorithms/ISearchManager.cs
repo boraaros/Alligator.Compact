@@ -2,6 +2,6 @@
 {
     internal interface ISearchManager
     {
-        int DepthLimit { get; }
+        int DepthLimit { get; set; }
     }
 }

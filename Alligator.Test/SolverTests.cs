@@ -36,7 +36,7 @@ namespace Alligator.Test
             var heuristicTables = new HeuristicTables<int>();
             var searchManager = new SearchManager(depth - 1);
             var alphabeta = new AlphaBetaPruning<UniformTreePosition, int>(rules, cacheTables, heuristicTables, searchManager);
-            var solver = new AlphaBetaSolver<UniformTreePosition, int>(alphabeta, rules);
+            var solver = new AlphaBetaSolver<UniformTreePosition, int>(alphabeta, rules, searchManager);
 
             // Act
             var bestStep = solver.OptimizeNextStep(new List<int>());

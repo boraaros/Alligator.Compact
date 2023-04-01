@@ -5,13 +5,16 @@
     {
         private readonly AlphaBetaPruning<TPosition, TStep> alphaBetaPruning;
         private readonly IRules<TPosition, TStep> rules;
+        private readonly ISearchManager searchManager;
 
         public AlphaBetaSolver(
-            AlphaBetaPruning<TPosition, TStep> alphaBetaPruning, 
-            IRules<TPosition, TStep> rules)
+            AlphaBetaPruning<TPosition, TStep> alphaBetaPruning,
+            IRules<TPosition, TStep> rules,
+            ISearchManager searchManager)
         {
             this.alphaBetaPruning = alphaBetaPruning ?? throw new ArgumentNullException(nameof(alphaBetaPruning));
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
+            this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
         }
 
         public TStep OptimizeNextStep(IList<TStep> history)
@@ -19,20 +22,87 @@
             var position = CreatePosition(history);
 
             var bestStep = default(TStep);
-            var bestValue = -sbyte.MaxValue;
+            var guess = 0;
 
-            foreach (var step in rules.LegalStepsAt(position))
+            for (int i = 2; i < 7; i += 2) // TODO: magic number (7)!
             {
-                position.Take(step);
-                var result = -alphaBetaPruning.Search(position, bestValue, sbyte.MaxValue);
-                if (result > bestValue)
-                {
-                    bestValue = result;
-                    bestStep = step;
-                }
-                position.TakeBack();
+                searchManager.DepthLimit = i;
+                var (OptimalSteps, Value) = BestNodeSearch(position, guess);
+                bestStep = OptimalSteps.First();
+                guess = Value;
             }
+
             return bestStep;
+        }
+
+        private (ICollection<TStep> OptimalSteps, int Value) BestNodeSearch(TPosition position, int guess)
+        {
+            int alpha = -int.MaxValue;
+            int beta = int.MaxValue;
+
+            IList<TStep> candidates = rules.LegalStepsAt(position).ToList();
+
+            while (alpha + 1 < beta && candidates.Count > 1)
+            {
+                var newCandidates = new List<TStep>();
+
+                foreach (var move in candidates)
+                {
+                    int value = NullWindowTest(position, move, guess);
+
+                    if (value >= guess)
+                    {
+                        newCandidates.Add(move);
+                    }
+                }
+
+                if (newCandidates.Count > 0)
+                {
+                    candidates = newCandidates;
+                    alpha = guess;
+                }
+                else
+                {
+                    beta = guess;
+                }
+
+                guess = NextGuess(alpha, beta, candidates.Count);
+            }
+
+            return (candidates, guess);
+        }
+
+        private int NullWindowTest(TPosition position, TStep step, int guess)
+        {
+            position.Take(step);
+            var value = -alphaBetaPruning.Search(position, -guess, -(guess - 1));
+            position.TakeBack();
+            return value;
+        }
+
+        private int NextGuess(int alpha, int beta, int count)
+        {
+            if (alpha <= 0)
+            {
+                beta = Math.Min(beta, int.MaxValue / 2);
+            }
+
+            if (beta >= 0)
+            {
+                alpha = Math.Max(alpha, -int.MaxValue / 2);
+            }
+
+            var guess = (int)(alpha + (count - 1.0) / count * (beta - alpha));
+
+            if (guess == alpha)
+            {
+                return guess + 1;
+            }
+            else if (guess == beta)
+            {
+                return guess - 1;
+            }
+            return guess;
         }
 
         private TPosition CreatePosition(IEnumerable<TStep> history)
