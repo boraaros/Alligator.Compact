@@ -14,12 +14,12 @@
 
         public void AddTransposition(TPosition position, Transposition<TStep> transposition)
         {
-            transpositionTable.TryAdd(position.Identifier, transposition);
+            transpositionTable[position.Identifier] = transposition;
         }
 
         public void AddValue(TPosition position, int value)
         {
-            evaluationTable.TryAdd(position.Identifier, value);
+            evaluationTable[position.Identifier] = value;
         }
 
         public bool TryGetTransposition(TPosition position, out Transposition<TStep> transposition)

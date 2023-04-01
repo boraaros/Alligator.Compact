@@ -2,7 +2,7 @@
 {
     internal class SearchManager : ISearchManager
     {
-        public int DepthLimit { get; private set; }
+        public int DepthLimit { get; set; }
 
         public SearchManager(int depthLimit)
         {

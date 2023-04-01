@@ -34,9 +34,9 @@ namespace Alligator.Solver
         {
             var cacheTables = new CacheTables<TPosition, TStep>();
             var heuristicTables = new HeuristicTables<TStep>();
-            var searchManager = new SearchManager(4);
+            var searchManager = new SearchManager(6);
             return new AlphaBetaSolver<TPosition, TStep>(new AlphaBetaPruning<TPosition, TStep>(
-                rules, cacheTables, heuristicTables, searchManager), rules);
+                rules, cacheTables, heuristicTables, searchManager), rules, searchManager);
         }
     }
 }
