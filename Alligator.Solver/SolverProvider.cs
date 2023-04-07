@@ -36,7 +36,7 @@ namespace Alligator.Solver
             var heuristicTables = new HeuristicTables<TStep>();
             var searchManager = new SearchManager(6);
             return new AlphaBetaSolver<TPosition, TStep>(new AlphaBetaPruning<TPosition, TStep>(
-                rules, cacheTables, heuristicTables, searchManager), rules, searchManager);
+                rules, cacheTables, heuristicTables, searchManager), rules, searchManager, logger);
         }
     }
 }
