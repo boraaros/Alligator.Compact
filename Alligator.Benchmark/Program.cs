@@ -13,7 +13,7 @@ namespace Alligator.Benchmark
             Console.WriteLine("Hello Six Making Benchmark!");
 
             var sw = new Stopwatch();
-            IRules<IPosition, Step> rules = new Rules(StepPool.Instance, new MovingRules());
+            var rules = new MeasurableRules(new Rules(StepPool.Instance, new MovingRules()));
             IConfiguration solverConfiguration = new Configuration();
             SolverProvider<IPosition, Step> solverFactory = new SolverProvider<IPosition, Step>(rules, solverConfiguration, SolverLog);
             ISolver<Step> solver = solverFactory.Create();
@@ -27,10 +27,17 @@ namespace Alligator.Benchmark
                 sw.Restart();
                 var result = solver.OptimizeNextStep(example.History);
                 Console.WriteLine($"Computation time: {sw.ElapsedMilliseconds} ms [result: {result}]");
+                PrintAndResetCallCounts(rules);
             }
 
             Console.WriteLine("Done!");
             Console.ReadKey();
+        }
+
+        private static void PrintAndResetCallCounts(MeasurableRules rules)
+        {
+            Console.WriteLine($"#InitPosCalls={rules.InitialPositionCallCount}, #LegalStepsCalls={rules.LegalStepsCallCount}, #IsGoalCalls={rules.IsGoalCallCount}");
+            rules.ClearCounters();
         }
 
         private static void SolverLog(string message)

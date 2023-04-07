@@ -45,8 +45,8 @@ namespace Alligator.Solver.Algorithms
 
         private (ICollection<TStep> OptimalSteps, int Value) BestNodeSearch(TPosition position, int guess)
         {
-            int alpha = -int.MaxValue;
-            int beta = int.MaxValue;
+            int alpha = 0;
+            int beta = 15;
 
             IList<TStep> candidates = rules.LegalStepsAt(position).ToList();
 
