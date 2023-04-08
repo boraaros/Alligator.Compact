@@ -1,6 +1,7 @@
 ﻿using Alligator.SixMaking.Logics;
 using Alligator.SixMaking.Model;
 using Alligator.Solver;
+using Alligator.Solver.Algorithms;
 using System.Diagnostics;
 
 namespace Alligator.Benchmark
@@ -16,7 +17,9 @@ namespace Alligator.Benchmark
             var rules = new MeasurableRules(new Rules(StepPool.Instance, new MovingRules()));
             IConfiguration solverConfiguration = new Configuration();
             SolverProvider<IPosition, Step> solverFactory = new SolverProvider<IPosition, Step>(rules, solverConfiguration, SolverLog);
-            ISolver<Step> solver = solverFactory.Create();
+            var cacheTables = new MeasurableCacheTables(new CacheTables<IPosition, Step>());
+            var heuristicTables = new MeasurableHeuristicTables(new HeuristicTables<Step>());
+            ISolver<Step> solver = solverFactory.Create(cacheTables, heuristicTables);
 
             Console.WriteLine("Performance testing");
             int counter = 0;
@@ -27,17 +30,33 @@ namespace Alligator.Benchmark
                 sw.Restart();
                 var result = solver.OptimizeNextStep(example.History);
                 Console.WriteLine($"Computation time: {sw.ElapsedMilliseconds} ms [result: {result}]");
-                PrintAndResetCallCounts(rules);
+                PrintAndResetStats(rules);
+                PrintAndResetStats(cacheTables);
+                PrintAndResetStats(heuristicTables);
             }
 
             Console.WriteLine("Done!");
             Console.ReadKey();
         }
 
-        private static void PrintAndResetCallCounts(MeasurableRules rules)
+        private static void PrintAndResetStats(MeasurableRules rules)
         {
             Console.WriteLine($"#InitPosCalls={rules.InitialPositionCallCount}, #LegalStepsCalls={rules.LegalStepsCallCount}, #IsGoalCalls={rules.IsGoalCallCount}");
             rules.ClearCounters();
+        }
+
+        private static void PrintAndResetStats(MeasurableCacheTables cacheTables)
+        {
+            Console.WriteLine($"#AddTranspositionCalls={cacheTables.AddTranspositionCallCount}, #AddValueCalls={cacheTables.AddValueCallCount}");
+            Console.WriteLine($"#TryGetTranspositionCalls={cacheTables.TryGetTranspositionCallCount}, #TryGetValueCalls={cacheTables.TryGetValueCallCount}");
+            Console.WriteLine($"TranspositionHitRatio={cacheTables.TranspositionHitRatio}, ValueHitRatio={cacheTables.ValueHitRatio}");
+            cacheTables.ClearCounters();
+        }
+
+        private static void PrintAndResetStats(MeasurableHeuristicTables heuristicTables)
+        {
+            Console.WriteLine($"#GetKillerStepsCalls={heuristicTables.GetKillerStepsCallCount}, #StoreBetaCutOffCalls={heuristicTables.StoreBetaCutOffCallCount}");
+            heuristicTables.ClearCounters();
         }
 
         private static void SolverLog(string message)

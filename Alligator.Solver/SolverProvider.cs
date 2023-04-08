@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Alligator.Test")] // TODO: move this into an assemply-info file!
+[assembly: InternalsVisibleTo("Alligator.Benchmark")] // TODO: move this into an assemply-info file!
 namespace Alligator.Solver
 {
     /// <summary>
@@ -34,9 +35,19 @@ namespace Alligator.Solver
         {
             var cacheTables = new CacheTables<TPosition, TStep>();
             var heuristicTables = new HeuristicTables<TStep>();
-            var searchManager = new SearchManager(6);
-            return new AlphaBetaSolver<TPosition, TStep>(new AlphaBetaPruning<TPosition, TStep>(
-                rules, cacheTables, heuristicTables, searchManager), rules, searchManager, logger);
+
+            return Create(cacheTables, heuristicTables);
+        }
+
+        internal ISolver<TStep> Create(ICacheTables<TPosition, TStep> cacheTables, IHeuristicTables<TStep> heuristicTables)
+        {
+            var searchManager = new SearchManager(6); // TODO: remove this ctor parameter
+
+            return new AlphaBetaSolver<TPosition, TStep>(
+                new AlphaBetaPruning<TPosition, TStep>(rules, cacheTables, heuristicTables, searchManager), 
+                rules, 
+                searchManager, 
+                logger);
         }
     }
 }
