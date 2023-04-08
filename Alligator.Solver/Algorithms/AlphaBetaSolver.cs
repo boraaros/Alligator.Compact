@@ -1,4 +1,6 @@
-﻿namespace Alligator.Solver.Algorithms
+﻿using System.Diagnostics;
+
+namespace Alligator.Solver.Algorithms
 {
     internal class AlphaBetaSolver<TPosition, TStep> : ISolver<TStep>
         where TPosition : IPosition<TStep>
@@ -6,19 +8,24 @@
         private readonly AlphaBetaPruning<TPosition, TStep> alphaBetaPruning;
         private readonly IRules<TPosition, TStep> rules;
         private readonly ISearchManager searchManager;
+        private readonly Action<string> logger;
 
         public AlphaBetaSolver(
             AlphaBetaPruning<TPosition, TStep> alphaBetaPruning,
             IRules<TPosition, TStep> rules,
-            ISearchManager searchManager)
+            ISearchManager searchManager,
+            Action<string> logger)
         {
             this.alphaBetaPruning = alphaBetaPruning ?? throw new ArgumentNullException(nameof(alphaBetaPruning));
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
             this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public TStep OptimizeNextStep(IList<TStep> history)
         {
+            var sw = new Stopwatch();
+            sw.Restart();
             var position = CreatePosition(history);
 
             var bestStep = default(TStep);
@@ -30,6 +37,7 @@
                 var (OptimalSteps, Value) = BestNodeSearch(position, guess);
                 bestStep = OptimalSteps.First();
                 guess = Value;
+                logger($"Iteration has been completed in {sw.ElapsedMilliseconds} ms (value: {Value}, step: {bestStep}, depth: {i})");
             }
 
             return bestStep;
