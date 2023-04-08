@@ -1,4 +1,5 @@
 ﻿using Alligator.Solver;
+using Alligator.TicTacToe;
 
 namespace Alligator.Demo
 {

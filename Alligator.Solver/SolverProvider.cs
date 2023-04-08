@@ -20,7 +20,7 @@ namespace Alligator.Solver
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SolverProvider(IRules<TPosition, TStep> rules, IConfiguration solverConfiguration, Action<string> logger)
+        public SolverProvider(IRules<TPosition, TStep> rules, IConfiguration solverConfiguration, Action<string> logger = null)
         {
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
             this.solverConfiguration = solverConfiguration ?? throw new ArgumentNullException(nameof(solverConfiguration));

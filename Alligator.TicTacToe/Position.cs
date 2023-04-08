@@ -1,8 +1,8 @@
 ﻿using Alligator.Solver;
 
-namespace Alligator.Demo
+namespace Alligator.TicTacToe
 {
-    internal class Position : IPosition<Placement>
+    public class Position : IPosition<Placement>
     {
         private readonly Symbol[,] board;
         private Symbol nextSymbolType;

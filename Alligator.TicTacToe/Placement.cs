@@ -1,6 +1,6 @@
-﻿namespace Alligator.Demo
+﻿namespace Alligator.TicTacToe
 {
-    internal class Placement
+    public class Placement
     {
         public readonly int Row;
         public readonly int Column;

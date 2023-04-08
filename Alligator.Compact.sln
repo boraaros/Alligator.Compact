@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alligator.Test", "Alligator
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alligator.SixMaking", "Alligator.SixMaking\Alligator.SixMaking.csproj", "{0A0454ED-279E-4BB4-93C9-0E65A54397EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alligator.Benchmark", "Alligator.Benchmark\Alligator.Benchmark.csproj", "{BEA87A2B-B421-4253-A426-81226C3025C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alligator.Benchmark", "Alligator.Benchmark\Alligator.Benchmark.csproj", "{BEA87A2B-B421-4253-A426-81226C3025C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alligator.TicTacToe", "Alligator.TicTacToe\Alligator.TicTacToe.csproj", "{28060B42-B42E-4C1C-895C-FD0B0C656553}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{BEA87A2B-B421-4253-A426-81226C3025C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEA87A2B-B421-4253-A426-81226C3025C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEA87A2B-B421-4253-A426-81226C3025C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28060B42-B42E-4C1C-895C-FD0B0C656553}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28060B42-B42E-4C1C-895C-FD0B0C656553}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28060B42-B42E-4C1C-895C-FD0B0C656553}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28060B42-B42E-4C1C-895C-FD0B0C656553}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
