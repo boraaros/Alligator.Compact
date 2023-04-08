@@ -1,6 +1,6 @@
-﻿namespace Alligator.Demo
+﻿namespace Alligator.TicTacToe
 {
-    internal enum Symbol
+    public enum Symbol
     {
         Empty = 0,
         X, 

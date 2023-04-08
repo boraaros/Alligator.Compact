@@ -1,8 +1,8 @@
 ﻿using Alligator.Solver;
 
-namespace Alligator.Demo
+namespace Alligator.TicTacToe
 {
-    internal class Rules : IRules<Position, Placement>
+    public class Rules : IRules<Position, Placement>
     {
         public Position InitialPosition()
         {
