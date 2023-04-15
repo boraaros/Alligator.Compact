@@ -4,7 +4,17 @@ Alligator = Algorithm library for game theory
 
 [![.NET](https://github.com/boraaros/Alligator.Compact/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/boraaros/Alligator.Compact/actions/workflows/ci.yml)
 
-[![CodeQL](https://github.com/boraaros/Alligator.Compact/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/boraaros/Alligator.Compact/actions/workflows/codeql.yml)
+**Sonar**
+
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=boraaros_Alligator.Compact&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=boraaros_Alligator.Compact)
+
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=boraaros_Alligator.Compact&metric=bugs)](https://sonarcloud.io/summary/new_code?id=boraaros_Alligator.Compact)
+
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=boraaros_Alligator.Compact&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=boraaros_Alligator.Compact)
+
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=boraaros_Alligator.Compact&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=boraaros_Alligator.Compact)
+
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=boraaros_Alligator.Compact&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=boraaros_Alligator.Compact)
 
 This is the new and compact version.
 
