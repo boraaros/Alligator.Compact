@@ -29,7 +29,7 @@ namespace Alligator.Test
             var optimalStep = solver.OptimizeNextStep(history);
 
             // Assert
-            Assert.AreEqual(1, optimalStep.Row);
+            Assert.AreEqual(11, optimalStep.Row);
             Assert.AreEqual(1, optimalStep.Column);
         }
 
