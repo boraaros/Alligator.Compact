@@ -2,7 +2,7 @@
 # Alligator.Compact
 Alligator = Algorithm library for game theory
 
-[![.NET](https://github.com/boraaros/Alligator.Compact/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/boraaros/Alligator.Compact/actions/workflows/ci.yml)
+[![.NET](https://github.com/boraaros/Alligator.Compact/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/boraaros/Alligator.Compact/actions/workflows/build.yml)
 
 **Sonar**
 
