@@ -6,7 +6,7 @@
         protected readonly int to;
         protected readonly int count;
 
-        private int index;
+        private readonly int index;
 
         protected Step(int from, int to, int count)
         {
