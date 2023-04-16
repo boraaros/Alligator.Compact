@@ -2,8 +2,8 @@
 {
     public sealed class Movement : Step
     {
-        private Movement(int from, int to, int count, int index)
-            : base(from, to, count, index)
+        public Movement(int from, int to, int count)
+            : base(from, to, count)
         {
         }
 

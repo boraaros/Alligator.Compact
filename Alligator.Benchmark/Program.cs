@@ -14,12 +14,26 @@ namespace Alligator.Benchmark
             Console.WriteLine("Hello Six Making Benchmark!");
 
             var sw = new Stopwatch();
-            var rules = new MeasurableRules(new Rules(StepPool.Instance, new MovingRules()));
+            var rules = new MeasurableRules(new Rules(new StepPool(), new MovingRules()));
             IConfiguration solverConfiguration = new Configuration();
             SolverProvider<IPosition, Step> solverFactory = new SolverProvider<IPosition, Step>(rules, solverConfiguration, SolverLog);
             var cacheTables = new MeasurableCacheTables(new CacheTables<IPosition, Step>());
             var heuristicTables = new MeasurableHeuristicTables(new HeuristicTables<Step>());
             ISolver<Step> solver = solverFactory.Create(cacheTables, heuristicTables);
+
+            //var p = rules.InitialPosition();
+            //Console.WriteLine($"Id: {p.Identifier}");
+            //foreach (var s in Example5().History)
+            //{
+            //    p.Take(s);
+            //    Console.WriteLine($"Id: {p.Identifier}");
+            //}
+
+            //while (p.History.Any())
+            //{
+            //    p.TakeBack();
+            //    Console.WriteLine($"Id: {p.Identifier}");
+            //}
 
             Console.WriteLine("Performance testing");
             int counter = 0;
@@ -87,10 +101,10 @@ namespace Alligator.Benchmark
         private static IPosition Example2()
         {
             IPosition position = new Position();
-            position.Take(StepPool.Instance.GetPlacement(12));
-            position.Take(StepPool.Instance.GetPlacement(13));
-            position.Take(StepPool.Instance.GetPlacement(11));
-            position.Take(StepPool.Instance.GetPlacement(17));
+            position.Take(new Placement(12));
+            position.Take(new Placement(13));
+            position.Take(new Placement(11));
+            position.Take(new Placement(17));
             return position;
         }
 
@@ -99,7 +113,7 @@ namespace Alligator.Benchmark
             IPosition position = new Position();
             for (int i = 6; i < 18; i++)
             {
-                position.Take(StepPool.Instance.GetPlacement(i));
+                position.Take(new Placement(i));
             }
             return position;
         }
@@ -109,52 +123,52 @@ namespace Alligator.Benchmark
             IPosition position = new Position();
             for (int i = 6; i < 18; i++)
             {
-                position.Take(StepPool.Instance.GetPlacement(i));
+                position.Take(new Placement(i));
             }
-            position.Take(StepPool.Instance.GetMovement(6, 7, 1));
-            position.Take(StepPool.Instance.GetMovement(9, 8, 1));
-            position.Take(StepPool.Instance.GetMovement(10, 11, 1));
-            position.Take(StepPool.Instance.GetMovement(14, 13, 1));
-            position.Take(StepPool.Instance.GetMovement(17, 12, 1));
-            position.Take(StepPool.Instance.GetMovement(12, 11, 1));
-            position.Take(StepPool.Instance.GetPlacement(2));
-            position.Take(StepPool.Instance.GetPlacement(18));
-            position.Take(StepPool.Instance.GetMovement(16, 11, 1));
-            position.Take(StepPool.Instance.GetMovement(11, 15, 1));
+            position.Take(new Movement(6, 7, 1));
+            position.Take(new Movement(9, 8, 1));
+            position.Take(new Movement(10, 11, 1));
+            position.Take(new Movement(14, 13, 1));
+            position.Take(new Movement(17, 12, 1));
+            position.Take(new Movement(12, 11, 1));
+            position.Take(new Placement(2));
+            position.Take(new Placement(18));
+            position.Take(new Movement(16, 11, 1));
+            position.Take(new Movement(11, 15, 1));
             return position;
         }
 
         private static IPosition Example5()
         {
             IPosition position = new Position();
-            position.Take(StepPool.Instance.GetPlacement(0));
-            position.Take(StepPool.Instance.GetPlacement(12));
-            position.Take(StepPool.Instance.GetPlacement(1));
-            position.Take(StepPool.Instance.GetPlacement(11));
-            position.Take(StepPool.Instance.GetPlacement(2));
-            position.Take(StepPool.Instance.GetPlacement(17));
-            position.Take(StepPool.Instance.GetPlacement(3));
-            position.Take(StepPool.Instance.GetPlacement(13));
-            position.Take(StepPool.Instance.GetPlacement(4));
-            position.Take(StepPool.Instance.GetPlacement(10));
-            position.Take(StepPool.Instance.GetPlacement(5));
-            position.Take(StepPool.Instance.GetPlacement(15));
-            position.Take(StepPool.Instance.GetPlacement(20));
-            position.Take(StepPool.Instance.GetPlacement(16));
-            position.Take(StepPool.Instance.GetMovement(5, 10, 1));
-            position.Take(StepPool.Instance.GetMovement(15, 10, 1));
-            position.Take(StepPool.Instance.GetPlacement(5));
-            position.Take(StepPool.Instance.GetPlacement(6));
-            position.Take(StepPool.Instance.GetMovement(1, 6, 1));
-            position.Take(StepPool.Instance.GetMovement(12, 11, 1));
-            position.Take(StepPool.Instance.GetMovement(10, 17, 1));
-            position.Take(StepPool.Instance.GetPlacement(12));
-            position.Take(StepPool.Instance.GetPlacement(7));
-            position.Take(StepPool.Instance.GetPlacement(22));
-            position.Take(StepPool.Instance.GetPlacement(1));
-            position.Take(StepPool.Instance.GetMovement(11, 16, 2));
-            position.Take(StepPool.Instance.GetPlacement(21));
-            position.Take(StepPool.Instance.GetPlacement(18));
+            position.Take(new Placement(0));
+            position.Take(new Placement(12));
+            position.Take(new Placement(1));
+            position.Take(new Placement(11));
+            position.Take(new Placement(2));
+            position.Take(new Placement(17));
+            position.Take(new Placement(3));
+            position.Take(new Placement(13));
+            position.Take(new Placement(4));
+            position.Take(new Placement(10));
+            position.Take(new Placement(5));
+            position.Take(new Placement(15));
+            position.Take(new Placement(20));
+            position.Take(new Placement(16));
+            position.Take(new Movement(5, 10, 1));
+            position.Take(new Movement(15, 10, 1));
+            position.Take(new Placement(5));
+            position.Take(new Placement(6));
+            position.Take(new Movement(1, 6, 1));
+            position.Take(new Movement(12, 11, 1));
+            position.Take(new Movement(10, 17, 1));
+            position.Take(new Placement(12));
+            position.Take(new Placement(7));
+            position.Take(new Placement(22));
+            position.Take(new Placement(1));
+            position.Take(new Movement(11, 16, 2));
+            position.Take(new Placement(21));
+            position.Take(new Placement(18));
             return position;
         }
 

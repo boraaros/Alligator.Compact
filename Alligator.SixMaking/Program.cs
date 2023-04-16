@@ -11,7 +11,7 @@ namespace Alligator.SixMaking
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Hello Six Making!");
 
-            IRules<IPosition, Step> rules = new Rules(StepPool.Instance, new MovingRules());
+            IRules<IPosition, Step> rules = new Rules(new StepPool(), new MovingRules());
             IConfiguration solverConfiguration = new Configuration();
 
             SolverProvider<IPosition, Step> solverFactory = new SolverProvider<IPosition, Step>(rules, solverConfiguration, SolverLog);
@@ -88,13 +88,14 @@ namespace Alligator.SixMaking
                     int from = int.Parse(msg[0]);
                     int to = int.Parse(msg[1]);
                     int count = int.Parse(msg[2]);
+
                     if (from == -1)
                     {
-                        return StepPool.Instance.GetPlacement(to);
+                        return new Placement(to);
                     }
                     else
                     {
-                        return StepPool.Instance.GetMovement(from, to, count);
+                        return new Movement(from, to, count);
                     }
                 }
                 catch (Exception e)

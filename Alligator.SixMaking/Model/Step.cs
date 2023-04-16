@@ -2,17 +2,18 @@
 {
     public abstract class Step
     {
-        protected readonly int index;
         protected readonly int from;
         protected readonly int to;
         protected readonly int count;
 
-        protected Step(int from, int to, int count, int index)
+        private int index;
+
+        protected Step(int from, int to, int count)
         {
             this.from = from;
             this.to = to;
             this.count = count;
-            this.index = index;
+            index = 125 * (from + 1) + 5 * to + (count - 1);
         }
 
         public int From
@@ -36,7 +37,7 @@
             {
                 return false;
             }
-            return index == other.GetHashCode();
+            return index == other.index;
         }
 
         public override int GetHashCode()

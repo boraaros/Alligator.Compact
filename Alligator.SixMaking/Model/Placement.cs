@@ -5,8 +5,8 @@
         private const int FromIndex = -1;
         private const int DiskCount = 1;
 
-        private Placement(int to, int index)
-            : base(FromIndex, to, DiskCount, index)
+        public Placement(int to)
+            : base(FromIndex, to, DiskCount)
         {
         }
 
