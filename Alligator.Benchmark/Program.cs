@@ -21,20 +21,6 @@ namespace Alligator.Benchmark
             var heuristicTables = new MeasurableHeuristicTables(new HeuristicTables<Step>());
             ISolver<Step> solver = solverFactory.Create(cacheTables, heuristicTables);
 
-            //var p = rules.InitialPosition();
-            //Console.WriteLine($"Id: {p.Identifier}");
-            //foreach (var s in Example5().History)
-            //{
-            //    p.Take(s);
-            //    Console.WriteLine($"Id: {p.Identifier}");
-            //}
-
-            //while (p.History.Any())
-            //{
-            //    p.TakeBack();
-            //    Console.WriteLine($"Id: {p.Identifier}");
-            //}
-
             Console.WriteLine("Performance testing");
             int counter = 0;
 
