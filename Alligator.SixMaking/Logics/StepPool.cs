@@ -1,21 +1,13 @@
 ﻿using Alligator.SixMaking.Model;
-using System.Reflection;
 
 namespace Alligator.SixMaking.Logics
 {
-    public sealed class StepPool : Singleton<StepPool>, IStepPool
+    public sealed class StepPool : IStepPool
     {
-        private int poolSize = 0;
-
         private readonly Step[] placingSteps;
         private readonly Step[][][] movingSteps;
 
-        public int Size
-        {
-            get { return poolSize; }
-        }
-
-        private StepPool()
+        public StepPool()
         {
             int totalSize = Constants.BoardSize * Constants.BoardSize;
 
@@ -28,23 +20,15 @@ namespace Alligator.SixMaking.Logics
 
         private void CreatePlacementPool()
         {
-            // the types of the constructor parameters, in order
-            Type[] paramTypes = new Type[] { typeof(int), typeof(int) };
-
             for (int i = 0; i < placingSteps.Length; i++)
             {
-                // the values of the constructor parameters, in order
-                object[] paramValues = new object[] { i, poolSize++ };
-                placingSteps[i] = Construct<Placement>(paramTypes, paramValues);
+                placingSteps[i] = new Placement(i);
             }
         }
 
         private void CreateMovementPool()
         {
             int totalSize = Constants.BoardSize * Constants.BoardSize;
-
-            // the types of the constructor parameters, in order
-            Type[] paramTypes = new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) };
 
             for (int from = 0; from < totalSize; from++)
             {
@@ -60,9 +44,7 @@ namespace Alligator.SixMaking.Logics
 
                     for (int count = 1; count < Constants.WinnerHeight; count++)
                     {
-                        // the values of the constructor parameters, in order
-                        object[] paramValues = new object[] { from, to, count, poolSize++ };
-                        movingSteps[from][to][count] = Construct<Movement>(paramTypes, paramValues);
+                        movingSteps[from][to][count] = new Movement(from, to, count);
                     }
                 }
             }
@@ -71,13 +53,6 @@ namespace Alligator.SixMaking.Logics
         private bool IsValidMove(int from, int to)
         {
             return from != to;
-        }
-
-        private T Construct<T>(Type[] paramTypes, object[] paramValues)
-        {
-            Type t = typeof(T);
-            ConstructorInfo ci = t.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, paramTypes, null);
-            return (T)ci.Invoke(paramValues);
         }
 
         public Step GetPlacement(int to)
