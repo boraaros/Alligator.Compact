@@ -27,6 +27,11 @@
 
         private int SearchRecursively(TPosition position, int depth, int alpha, int beta)
         {
+            if (IsLeaf(position, depth))
+            {
+                return -HeuristicValue(position, depth);
+            }
+
             var originalAlpha = alpha;
 
             if (cacheTables.TryGetTransposition(position, out Transposition<TStep> transposition) 
@@ -49,14 +54,11 @@
                     return transposition.Value;
                 }
             }
-            if (IsLeaf(position, depth))
-            {
-                return -HeuristicValue(position, depth);
-            }
+
             var bestValue = -int.MaxValue;
             TStep bestStep = default;
 
-            foreach (var step in OrderedLegalStepsAt(position, depth))
+            foreach (var step in OrderedLegalStepsAt(position, depth, transposition))
             {
                 position.Take(step);
                 var value = -SearchRecursively(position, depth - 1, -beta, -alpha);
@@ -83,18 +85,20 @@
             return bestValue;
         }
 
-        private IEnumerable<TStep> OrderedLegalStepsAt(TPosition position, int depth)
+        private IEnumerable<TStep> OrderedLegalStepsAt(TPosition position, int depth, Transposition<TStep> transposition)
         {
-            TStep prevOptimalStep = default(TStep);
-            if (cacheTables.TryGetTransposition(position, out Transposition<TStep> transposition))
+            if (transposition != null)
             {
                 yield return transposition.OptimalStep;
-                prevOptimalStep = transposition.OptimalStep;
             }
             var prevKillerSteps = heuristicTables.GetKillerSteps(depth);
             var otherSteps = new List<TStep>();
-            foreach (var move in rules.LegalStepsAt(position).Where(t => !t.Equals(prevOptimalStep)))
+            foreach (var move in rules.LegalStepsAt(position))
             {
+                if (transposition != null && move.Equals(transposition.OptimalStep))
+                {
+                    continue;
+                }
                 if (prevKillerSteps.Contains(move))
                 {
                     yield return move;
