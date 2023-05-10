@@ -8,8 +8,8 @@
 
         public CacheTables()
         {
-            evaluationTable = new Dictionary<ulong, int>();
-            transpositionTable = new Dictionary<ulong, Transposition<TStep>>();
+            evaluationTable = new Dictionary<ulong, int>(10000000);
+            transpositionTable = new Dictionary<ulong, Transposition<TStep>>(10000000);
         }
 
         public void AddTransposition(TPosition position, Transposition<TStep> transposition)
