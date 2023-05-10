@@ -74,6 +74,7 @@ namespace Alligator.Benchmark
             yield return Example3();
             yield return Example4();
             yield return Example5();
+            yield return Example6();
         }
 
         #region Examles
@@ -155,6 +156,30 @@ namespace Alligator.Benchmark
             position.Take(new Movement(11, 16, 2));
             position.Take(new Placement(21));
             position.Take(new Placement(18));
+            return position;
+        }
+
+        private static IPosition Example6()
+        {
+            IPosition position = new Position();
+            position.Take(new Placement(0));
+            position.Take(new Placement(12));
+            position.Take(new Placement(1));
+            position.Take(new Placement(7));
+            position.Take(new Placement(2));
+            position.Take(new Placement(13));
+            position.Take(new Placement(11));
+            position.Take(new Placement(17));
+            position.Take(new Movement(2, 7, 1));
+            position.Take(new Placement(8));
+            position.Take(new Placement(16));
+            position.Take(new Placement(22));
+            position.Take(new Movement(7, 12, 2));
+            position.Take(new Movement(12, 1, 1));
+            position.Take(new Movement(11, 12, 1));
+            position.Take(new Movement(12, 1, 1));
+            position.Take(new Movement(1, 8, 3));
+            position.Take(new Movement(13, 8, 1));
             return position;
         }
 
