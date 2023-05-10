@@ -10,6 +10,8 @@ namespace Alligator.Solver.Algorithms
         private readonly ISearchManager searchManager;
         private readonly Action<string> logger;
 
+        private const int maxDepth = 7; // TODO: magic number!
+
         public AlphaBetaSolver(
             AlphaBetaPruning<TPosition, TStep> alphaBetaPruning,
             IRules<TPosition, TStep> rules,
@@ -31,7 +33,7 @@ namespace Alligator.Solver.Algorithms
             var bestStep = default(TStep);
             var guess = 0;
 
-            for (int i = 2; i < 7; i += 2) // TODO: magic number (7)!
+            for (int i = 2; i < maxDepth; i += 2) 
             {
                 searchManager.DepthLimit = i;
                 var (OptimalSteps, Value) = BestNodeSearch(position, guess);
@@ -45,10 +47,12 @@ namespace Alligator.Solver.Algorithms
 
         private (ICollection<TStep> OptimalSteps, int Value) BestNodeSearch(TPosition position, int guess)
         {
-            int alpha = -int.MaxValue;
-            int beta = int.MaxValue;
+            int alpha = -sbyte.MaxValue - maxDepth;
+            int beta = sbyte.MaxValue + maxDepth;
 
             IList<TStep> candidates = rules.LegalStepsAt(position).ToList();
+
+            var optimalValue = 0;
 
             while (alpha + 1 < beta && candidates.Count > 1)
             {
@@ -56,6 +60,12 @@ namespace Alligator.Solver.Algorithms
 
                 foreach (var move in candidates)
                 {
+                    if (newCandidates.Count > 1)
+                    {
+                        newCandidates.Add(move);
+                        continue;
+                    }
+
                     int value = NullWindowTest(position, move, guess);
 
                     if (value >= guess)
@@ -66,6 +76,7 @@ namespace Alligator.Solver.Algorithms
 
                 if (newCandidates.Count > 0)
                 {
+                    optimalValue = guess;
                     candidates = newCandidates;
                     alpha = guess;
                 }
@@ -74,10 +85,10 @@ namespace Alligator.Solver.Algorithms
                     beta = guess;
                 }
 
-                guess = NextGuess(alpha, beta, candidates.Count);
+                guess = newCandidates.Count > 0 ? guess + 1 : guess - 1;
             }
 
-            return (candidates, guess);
+            return (candidates, optimalValue);
         }
 
         private int NullWindowTest(TPosition position, TStep step, int guess)
@@ -86,31 +97,6 @@ namespace Alligator.Solver.Algorithms
             var value = -alphaBetaPruning.Search(position, -guess, -(guess - 1));
             position.TakeBack();
             return value;
-        }
-
-        private int NextGuess(int alpha, int beta, int count)
-        {
-            if (alpha <= 0)
-            {
-                beta = Math.Min(beta, int.MaxValue / 2);
-            }
-
-            if (beta >= 0)
-            {
-                alpha = Math.Max(alpha, -int.MaxValue / 2);
-            }
-
-            var guess = (int)(alpha + (count - 1.0) / count * (beta - alpha));
-
-            if (guess == alpha)
-            {
-                return guess + 1;
-            }
-            else if (guess == beta)
-            {
-                return guess - 1;
-            }
-            return guess;
         }
 
         private TPosition CreatePosition(IEnumerable<TStep> history)
