@@ -27,6 +27,11 @@ namespace Alligator.Benchmark
             heuristicTables.StoreBetaCutOff(move, depth);
         }
 
+        public int GetHistoryScore(Step move)
+        {
+            return heuristicTables.GetHistoryScore(move);
+        }
+
         public void ClearCounters()
         {
             GetKillerStepsCallCount = 0;

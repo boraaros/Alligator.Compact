@@ -8,6 +8,9 @@
         private readonly IHeuristicTables<TStep> heuristicTables;
         private readonly ISearchManager searchManager;
 
+        private const int MaxSearchDepth = 16;
+        private readonly List<TStep>[] orderedStepBuffers;
+
         public AlphaBetaPruning(
             IRules<TPosition, TStep> rules, 
             ICacheTables<TPosition, TStep> cacheTables, 
@@ -18,6 +21,12 @@
             this.cacheTables = cacheTables ?? throw new ArgumentNullException(nameof(cacheTables));
             this.heuristicTables = heuristicTables ?? throw new ArgumentNullException(nameof(heuristicTables));
             this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
+
+            orderedStepBuffers = new List<TStep>[MaxSearchDepth];
+            for (int i = 0; i < MaxSearchDepth; i++)
+            {
+                orderedStepBuffers[i] = new List<TStep>();
+            }
         }
 
         public int Search(TPosition position, int alpha, int beta)
@@ -27,15 +36,20 @@
 
         private int SearchRecursively(TPosition position, int depth, int alpha, int beta)
         {
-            if (IsLeaf(position, depth))
+            if (depth <= 0)
             {
+                if (rules.IsGoal(position))
+                {
+                    return -(sbyte.MaxValue + depth);
+                }
                 return -HeuristicValue(position, depth);
             }
 
             var originalAlpha = alpha;
 
-            if (cacheTables.TryGetTransposition(position, out Transposition<TStep> transposition) 
-                && depth <= transposition.Depth)
+            bool hasTransposition = cacheTables.TryGetTransposition(position, out Transposition<TStep> transposition);
+
+            if (hasTransposition && depth <= transposition.Depth)
             {
                 switch (transposition.EvaluationMode)
                 {
@@ -55,11 +69,19 @@
                 }
             }
 
+            var orderedSteps = GetOrderedLegalSteps(position, depth, hasTransposition, transposition.OptimalStep);
+
+            if (orderedSteps.Count == 0)
+            {
+                return -(rules.IsGoal(position) ? sbyte.MaxValue + depth : 0);
+            }
+
             var bestValue = -int.MaxValue;
             TStep bestStep = default;
 
-            foreach (var step in OrderedLegalStepsAt(position, depth, transposition))
+            for (int i = 0; i < orderedSteps.Count; i++)
             {
+                var step = orderedSteps[i];
                 position.Take(step);
                 var value = -SearchRecursively(position, depth - 1, -beta, -alpha);
                 position.TakeBack();
@@ -78,40 +100,45 @@
             }
             if (depth > 1)
             {
-                EvaluationMode evaluationMode = GetEvaluationMode(bestValue, originalAlpha, beta);
-                transposition = new Transposition<TStep>(evaluationMode, bestValue, depth, bestStep);
-                cacheTables.AddTransposition(position, transposition);
+                var newTransposition = new Transposition<TStep>(GetEvaluationMode(bestValue, originalAlpha, beta), bestValue, depth, bestStep);
+                cacheTables.AddTransposition(position, newTransposition);
             }
             return bestValue;
         }
 
-        private IEnumerable<TStep> OrderedLegalStepsAt(TPosition position, int depth, Transposition<TStep> transposition)
+        private List<TStep> GetOrderedLegalSteps(TPosition position, int depth, bool hasTransposition, TStep transpositionStep)
         {
-            if (transposition != null)
-            {
-                yield return transposition.OptimalStep;
-            }
-            var prevKillerSteps = heuristicTables.GetKillerSteps(depth);
-            var otherSteps = new List<TStep>();
+            var result = orderedStepBuffers[depth];
+            result.Clear();
+
+            var killers = heuristicTables.GetKillerSteps(depth);
+            int killerCount = 0;
+            bool transpositionStepIsLegal = false;
+
             foreach (var move in rules.LegalStepsAt(position))
             {
-                if (transposition != null && move.Equals(transposition.OptimalStep))
+                if (hasTransposition && move.Equals(transpositionStep))
                 {
+                    transpositionStepIsLegal = true;
                     continue;
                 }
-                if (prevKillerSteps.Contains(move))
+                if (killers.Contains(move))
                 {
-                    yield return move;
+                    result.Insert(killerCount, move);
+                    killerCount++;
                 }
                 else
                 {
-                    otherSteps.Add(move);
+                    result.Add(move);
                 }
             }
-            foreach (var move in otherSteps)
+
+            if (transpositionStepIsLegal)
             {
-                yield return move;
+                result.Insert(0, transpositionStep);
             }
+
+            return result;
         }
 
         private bool IsBetaCutOff(int alpha, int beta)
@@ -122,11 +149,6 @@
         private void HandleBetaCutOff(TStep step, int depth)
         {
             heuristicTables.StoreBetaCutOff(step, depth);
-        }
-
-        private bool IsLeaf(TPosition position, int depth)
-        {
-            return depth <= 0 || !rules.LegalStepsAt(position).Any();
         }
 
         private EvaluationMode GetEvaluationMode(int value, int alpha, int beta)
@@ -147,16 +169,12 @@
 
         private int HeuristicValue(TPosition position, int depth)
         {
-            if (rules.LegalStepsAt(position).Any())
+            if (!cacheTables.TryGetValue(position, out var value))
             {
-                if (!cacheTables.TryGetValue(position, out var value))
-                {
-                    value = position.Value;
-                    cacheTables.AddValue(position, value);
-                }
-                return IsOpponentsTurn(depth) ? -value : value; // TODO: check if the sign is required!
+                value = position.Value;
+                cacheTables.AddValue(position, value);
             }
-            return rules.IsGoal(position) ? sbyte.MaxValue + depth : 0;
+            return IsOpponentsTurn(depth) ? -value : value;
         }
 
         private bool IsOpponentsTurn(int depth)
