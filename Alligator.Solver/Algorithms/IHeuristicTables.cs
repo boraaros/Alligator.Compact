@@ -4,5 +4,6 @@
     {
         IEnumerable<TMove> GetKillerSteps(int depth);
         void StoreBetaCutOff(TMove move, int depth);
+        int GetHistoryScore(TMove move);
     }
 }

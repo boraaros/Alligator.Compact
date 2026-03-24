@@ -1,6 +1,6 @@
 ﻿namespace Alligator.Solver.Algorithms
 {
-    internal class Transposition<TStep>
+    internal struct Transposition<TStep>
     {
         public EvaluationMode EvaluationMode;
         public int Value;

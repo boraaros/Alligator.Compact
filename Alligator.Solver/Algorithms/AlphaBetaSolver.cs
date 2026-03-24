@@ -52,7 +52,7 @@ namespace Alligator.Solver.Algorithms
 
             IList<TStep> candidates = rules.LegalStepsAt(position).ToList();
 
-            var optimalValue = 0;
+            var optimalValue = guess;
 
             while (alpha + 1 < beta && candidates.Count > 1)
             {
