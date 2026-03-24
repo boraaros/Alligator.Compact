@@ -63,8 +63,7 @@ The solver uses **iterative deepening** with **MTD(f)** (Memory-enhanced Test Dr
 | Static evaluation cache | ✅ Implemented | Avoids redundant `IPosition.Value` calls |
 | Principal Variation move ordering | ✅ Implemented | Best move from TT tried first |
 | Quiescence search | ❌ Not yet | Would reduce horizon effect |
-| Aspiration windows | ❌ Not yet | Could speed up iterative deepening |
-| History heuristic ordering | ❌ Not yet | Move ordering by historical beta-cutoff frequency |
+| History heuristic ordering | ❌ Not yet | Move ordering by historical beta-cutoff frequency (scores already recorded) |
 | Late move reductions (LMR) | ❌ Not yet | Reduce depth for moves unlikely to be good |
 | Null move pruning | ❌ Not yet | Skip a turn to get quick upper bound |
 | Parallel search | ❌ Not yet | e.g. Lazy SMP or YBWC |
@@ -76,7 +75,7 @@ The solver uses **iterative deepening** with **MTD(f)** (Memory-enhanced Test Dr
 | Project | Description |
 |---|---|
 | **Alligator.Solver** | The abstract solver — game-agnostic core library |
-| **Alligator.SixMaking** | [Six Making](https://boardgamegeek.com/boardgame/149793/six-making) game implementation |
+| **Alligator.SixMaking** | [Six Making](https://www.youtube.com/watch?v=FHdltzwaAJg) game implementation |
 | **Alligator.TicTacToe** | Tic-tac-toe implementation (minimal example) |
 | **Alligator.Demo** | Interactive console demo (human vs AI tic-tac-toe) |
 | **Alligator.Benchmark** | Performance benchmarks for the solver |
