@@ -2,13 +2,15 @@ using Alligator.SixMaking.Logics;
 using Alligator.SixMaking.Model;
 using Alligator.Solver;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Engines;
 
 namespace Alligator.Benchmark
 {
     [MemoryDiagnoser]
-    [SimpleJob(warmupCount: 1, iterationCount: 5)]
+    [SimpleJob(RunStrategy.Monitoring, warmupCount: 1, iterationCount: 5)]
     public class SolverBenchmarks
     {
+        private SolverProvider<IPosition, Step> solverFactory = null!;
         private ISolver<Step> solver = null!;
         private IList<Step> example1History = null!;
         private IList<Step> example2History = null!;
@@ -16,17 +18,22 @@ namespace Alligator.Benchmark
         private IList<Step> example5History = null!;
 
         [GlobalSetup]
-        public void Setup()
+        public void GlobalSetup()
         {
             var rules = new Rules(new StepPool(), new MovingRules());
             var solverConfiguration = new Configuration();
-            var solverFactory = new SolverProvider<IPosition, Step>(rules, solverConfiguration);
-            solver = solverFactory.Create();
+            solverFactory = new SolverProvider<IPosition, Step>(rules, solverConfiguration);
 
             example1History = BuildHistory(Example1());
             example2History = BuildHistory(Example2());
             example3History = BuildHistory(Example3());
             example5History = BuildHistory(Example5());
+        }
+
+        [IterationSetup]
+        public void IterationSetup()
+        {
+            solver = solverFactory.Create();
         }
 
         [Benchmark(Description = "Example1 - Empty board")]
