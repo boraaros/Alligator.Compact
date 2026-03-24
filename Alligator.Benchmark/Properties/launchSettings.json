@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Diagnostic": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    },
+    "BenchmarkDotNet": {
+      "commandName": "Project",
+      "commandLineArgs": "--benchmark"
+    }
+  }
+}
