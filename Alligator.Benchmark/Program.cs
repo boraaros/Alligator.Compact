@@ -2,6 +2,7 @@
 using Alligator.SixMaking.Model;
 using Alligator.Solver;
 using Alligator.Solver.Algorithms;
+using BenchmarkDotNet.Running;
 using System.Diagnostics;
 
 namespace Alligator.Benchmark
@@ -10,6 +11,12 @@ namespace Alligator.Benchmark
     {
         static void Main(string[] args)
         {
+            if (args.Contains("--benchmark"))
+            {
+                BenchmarkRunner.Run<SolverBenchmarks>();
+                return;
+            }
+
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Hello Six Making Benchmark!");
 
