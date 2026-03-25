@@ -30,7 +30,7 @@ namespace Alligator.Solver.Algorithms
             sw.Restart();
             var position = CreatePosition(history);
 
-            var bestStep = default(TStep);
+            TStep? bestStep = default;
             var guess = 0;
 
             for (int i = 2; i < maxDepth; i += 2) 
@@ -42,7 +42,7 @@ namespace Alligator.Solver.Algorithms
                 logger($"Iteration has been completed in {sw.ElapsedMilliseconds} ms (value: {Value}, step: {bestStep}, depth: {i})");
             }
 
-            return bestStep;
+            return bestStep ?? throw new InvalidOperationException("No optimal step found.");
         }
 
         private (ICollection<TStep> OptimalSteps, int Value) BestNodeSearch(TPosition position, int guess)

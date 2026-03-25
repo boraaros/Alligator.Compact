@@ -40,7 +40,7 @@ namespace Alligator.SixMaking.Logics
                         {
                             var move = stepPool.GetMovement(cell, to, diskCount);
 
-                            if (movingRules.AreInverses(position.LastStep, move))
+                            if (position.LastStep is not null && movingRules.AreInverses(position.LastStep, move))
                             {
                                 continue;
                             }

@@ -32,7 +32,7 @@
 
         public bool IsOver => winner != Disk.None;
 
-        public Step LastStep => History.LastOrDefault();
+        public Step? LastStep => History.LastOrDefault();
 
         public sbyte Value => StaticEvaluate();
 

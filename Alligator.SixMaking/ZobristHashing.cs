@@ -2,7 +2,7 @@
 {
     public class ZobristHashing : IHashing
     {
-        private static ulong[] randomULongs;
+        private static ulong[] randomULongs = null!;
         private ulong hashValue;
 
         private static readonly Random random =

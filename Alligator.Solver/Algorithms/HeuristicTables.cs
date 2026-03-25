@@ -2,15 +2,20 @@
 {
     internal class HeuristicTables<TMove> : IHeuristicTables<TMove>
     {
-        private readonly IDictionary<int, IList<TMove>> killerSteps;
+        private readonly Dictionary<int, IList<TMove>> killerSteps;
+
+#pragma warning disable CS8714 // TMove satisfies notnull in practice (game steps are never null)
         private readonly Dictionary<TMove, int> historyScores;
+#pragma warning restore CS8714
 
         private const int StoredKillerStepsLimitPerDepth = 2;
 
         public HeuristicTables()
         {
             killerSteps = new Dictionary<int, IList<TMove>>();
+#pragma warning disable CS8714
             historyScores = new Dictionary<TMove, int>();
+#pragma warning restore CS8714
         }
 
         public void StoreBetaCutOff(TMove move, int depth)
@@ -21,8 +26,7 @@
 
         public IEnumerable<TMove> GetKillerSteps(int depth)
         {
-            IList<TMove> killers;
-            if (killerSteps.TryGetValue(depth, out killers))
+            if (killerSteps.TryGetValue(depth, out var killers))
             {
                 return killers;
             }
@@ -49,10 +53,9 @@
 
         private void UpdateKillerSteps(TMove move, int depth)
         {
-            IList<TMove> killers;
-            if (killerSteps.TryGetValue(depth, out killers))
+            if (killerSteps.TryGetValue(depth, out var killers))
             {
-                if (killers[0].Equals(move))
+                if (killers[0]!.Equals(move))
                 {
                     return;
                 }
