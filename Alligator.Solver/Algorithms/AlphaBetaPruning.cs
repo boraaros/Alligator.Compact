@@ -8,7 +8,7 @@
         private readonly IHeuristicTables<TStep> heuristicTables;
         private readonly ISearchManager searchManager;
 
-        private const int MaxSearchDepth = 16;
+        private const int MaxSearchDepth = 48;
         private readonly List<TStep>[] orderedStepBuffers;
 
         public AlphaBetaPruning(
