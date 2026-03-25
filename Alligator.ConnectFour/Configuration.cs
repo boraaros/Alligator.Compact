@@ -4,6 +4,7 @@ namespace Alligator.ConnectFour
 {
     internal class Configuration : IConfiguration
     {
-        public int MaxDepth => 13;
+        public int MaxDepth => 43;
+        public TimeSpan? TimeBudget => TimeSpan.FromSeconds(5);
     }
 }

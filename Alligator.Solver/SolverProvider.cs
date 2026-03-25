@@ -48,7 +48,8 @@ namespace Alligator.Solver
                 rules, 
                 searchManager, 
                 logger,
-                solverConfiguration.MaxDepth);
+                solverConfiguration.MaxDepth,
+                (long)(solverConfiguration.TimeBudget?.TotalMilliseconds ?? 0));
         }
     }
 }

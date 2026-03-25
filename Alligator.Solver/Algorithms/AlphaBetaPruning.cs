@@ -36,6 +36,12 @@
 
         private int SearchRecursively(TPosition position, int depth, int alpha, int beta)
         {
+            searchManager.CheckTimeBudget();
+            if (searchManager.IsAborted)
+            {
+                return 0;
+            }
+
             if (depth <= 0)
             {
                 if (rules.IsGoal(position))
@@ -98,7 +104,7 @@
                     break;
                 }
             }
-            if (depth > 1)
+            if (depth > 1 && !searchManager.IsAborted)
             {
                 var newTransposition = new Transposition<TStep>(GetEvaluationMode(bestValue, originalAlpha, beta), bestValue, depth, bestStep);
                 cacheTables.AddTransposition(position, newTransposition);

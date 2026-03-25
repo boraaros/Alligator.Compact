@@ -10,19 +10,22 @@ namespace Alligator.Solver.Algorithms
         private readonly ISearchManager searchManager;
         private readonly Action<string> logger;
         private readonly int maxDepth;
+        private readonly long timeBudgetMs;
 
         public AlphaBetaSolver(
             AlphaBetaPruning<TPosition, TStep> alphaBetaPruning,
             IRules<TPosition, TStep> rules,
             ISearchManager searchManager,
             Action<string> logger,
-            int maxDepth)
+            int maxDepth,
+            long timeBudgetMs = 0)
         {
             this.alphaBetaPruning = alphaBetaPruning ?? throw new ArgumentNullException(nameof(alphaBetaPruning));
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
             this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.maxDepth = maxDepth;
+            this.timeBudgetMs = timeBudgetMs;
         }
 
         public TStep OptimizeNextStep(IList<TStep> history)
@@ -31,13 +34,22 @@ namespace Alligator.Solver.Algorithms
             sw.Restart();
             var position = CreatePosition(history);
 
-            TStep? bestStep = default;
+TStep? bestStep = default;
+
+searchManager.StartTimedSearch(timeBudgetMs);
             var guess = 0;
 
             for (int i = 2; i < maxDepth; i += 2) 
             {
                 searchManager.DepthLimit = i;
                 var (OptimalSteps, Value) = BestNodeSearch(position, guess);
+
+                if (searchManager.IsAborted)
+                {
+                    logger($"Search aborted at depth {i} after {sw.ElapsedMilliseconds} ms");
+                    break;
+                }
+
                 bestStep = OptimalSteps.First();
                 guess = Value;
                 logger($"Iteration has been completed in {sw.ElapsedMilliseconds} ms (value: {Value}, step: {bestStep}, depth: {i})");
@@ -61,6 +73,11 @@ namespace Alligator.Solver.Algorithms
 
                 foreach (var move in candidates)
                 {
+                    if (searchManager.IsAborted)
+                    {
+                        break;
+                    }
+
                     if (newCandidates.Count > 1)
                     {
                         newCandidates.Add(move);
@@ -73,6 +90,11 @@ namespace Alligator.Solver.Algorithms
                     {
                         newCandidates.Add(move);
                     }
+                }
+
+                if (searchManager.IsAborted)
+                {
+                    break;
                 }
 
                 if (newCandidates.Count > 0)
