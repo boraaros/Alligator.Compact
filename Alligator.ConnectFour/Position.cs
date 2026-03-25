@@ -24,6 +24,18 @@ namespace Alligator.ConnectFour
         private static readonly ulong[,,] zobristTable;
         private static readonly ulong zobristTurn;
 
+        // Number of 4-in-a-row windows passing through each cell.
+        // Center cells participate in far more winning lines than edges/corners.
+        private static readonly int[,] cellWeights =
+        {
+            { 3, 4, 5, 7, 5, 4, 3 },   // row 0 (bottom)
+            { 4, 6, 8, 10, 8, 6, 4 },
+            { 5, 8, 11, 13, 11, 8, 5 },
+            { 5, 8, 11, 13, 11, 8, 5 },
+            { 4, 6, 8, 10, 8, 6, 4 },
+            { 3, 4, 5, 7, 5, 4, 3 }    // row 5 (top)
+        };
+
         static Position()
         {
             var rng = new Random(42);
@@ -134,22 +146,32 @@ namespace Alligator.ConnectFour
         }
 
         /// <summary>
-        /// Heuristic evaluation: counts open windows of 2 and 3.
+        /// Heuristic evaluation: counts open windows of 2 and 3, with threat awareness.
+        /// A 3-in-a-row where the completing cell is immediately playable scores much higher.
         /// Returns value from current player's perspective.
         /// </summary>
         private sbyte Evaluate()
         {
             int score = 0;
 
-            // Center column preference — discs in center have more potential
+            // Positional quality: weight each disc by how many winning lines pass through its cell.
+            // A disc at the center (weight 13) is far more valuable than one in the corner (weight 3).
             for (int r = 0; r < Rows; r++)
             {
-                if (board[r, Columns / 2] == Disk.Red) score += 3;
-                else if (board[r, Columns / 2] == Disk.Yellow) score -= 3;
+                for (int c = 0; c < Columns; c++)
+                {
+                    if (board[r, c] == Disk.Red) score += cellWeights[r, c];
+                    else if (board[r, c] == Disk.Yellow) score -= cellWeights[r, c];
+                }
             }
 
-            // Evaluate all windows of 4
-            score += EvaluateAllWindows();
+            // Evaluate all windows of 4 with threat detection
+            int redThreats = 0, yellowThreats = 0;
+            score += EvaluateAllWindows(ref redThreats, ref yellowThreats);
+
+            // Double threat bonus: two simultaneous immediate threats = opponent can only block one = forced win
+            if (redThreats >= 2) score += 80;
+            if (yellowThreats >= 2) score -= 80;
 
             // Clamp to sbyte range (excluding MaxValue which is reserved for wins)
             score = Math.Clamp(score, -126, 126);
@@ -158,7 +180,7 @@ namespace Alligator.ConnectFour
             return nextDisk == Disk.Red ? (sbyte)score : (sbyte)-score;
         }
 
-        private int EvaluateAllWindows()
+        private int EvaluateAllWindows(ref int redThreats, ref int yellowThreats)
         {
             int score = 0;
 
@@ -167,7 +189,7 @@ namespace Alligator.ConnectFour
             {
                 for (int c = 0; c <= Columns - WinLength; c++)
                 {
-                    score += EvaluateWindow(r, c, 0, 1);
+                    score += EvaluateWindow(r, c, 0, 1, ref redThreats, ref yellowThreats);
                 }
             }
 
@@ -176,7 +198,7 @@ namespace Alligator.ConnectFour
             {
                 for (int r = 0; r <= Rows - WinLength; r++)
                 {
-                    score += EvaluateWindow(r, c, 1, 0);
+                    score += EvaluateWindow(r, c, 1, 0, ref redThreats, ref yellowThreats);
                 }
             }
 
@@ -185,7 +207,7 @@ namespace Alligator.ConnectFour
             {
                 for (int c = 0; c <= Columns - WinLength; c++)
                 {
-                    score += EvaluateWindow(r, c, 1, 1);
+                    score += EvaluateWindow(r, c, 1, 1, ref redThreats, ref yellowThreats);
                 }
             }
 
@@ -194,32 +216,70 @@ namespace Alligator.ConnectFour
             {
                 for (int c = 0; c <= Columns - WinLength; c++)
                 {
-                    score += EvaluateWindow(r, c, -1, 1);
+                    score += EvaluateWindow(r, c, -1, 1, ref redThreats, ref yellowThreats);
                 }
             }
 
             return score;
         }
 
-        private int EvaluateWindow(int startRow, int startCol, int dRow, int dCol)
+        private int EvaluateWindow(int startRow, int startCol, int dRow, int dCol,
+            ref int redThreats, ref int yellowThreats)
         {
             int red = 0, yellow = 0;
+            int minDistance = int.MaxValue;
 
             for (int i = 0; i < WinLength; i++)
             {
-                Disk d = board[startRow + i * dRow, startCol + i * dCol];
+                int r = startRow + i * dRow;
+                int c = startCol + i * dCol;
+                Disk d = board[r, c];
                 if (d == Disk.Red) red++;
                 else if (d == Disk.Yellow) yellow++;
+                else
+                {
+                    int distance = r - heights[c];
+                    if (distance < minDistance) minDistance = distance;
+                }
             }
 
             if (red > 0 && yellow > 0) return 0; // Blocked window
 
-            if (red == 3) return 5;
-            if (red == 2) return 2;
-            if (yellow == 3) return -5;
-            if (yellow == 2) return -2;
+            if (red == 3)
+            {
+                if (minDistance == 0) redThreats++;
+                return ScoreThreeInRow(minDistance);
+            }
+            if (yellow == 3)
+            {
+                if (minDistance == 0) yellowThreats++;
+                return -ScoreThreeInRow(minDistance);
+            }
+            if (red == 2) return ScoreTwoInRow(minDistance);
+            if (yellow == 2) return -ScoreTwoInRow(minDistance);
 
             return 0;
+        }
+
+        private static int ScoreThreeInRow(int distanceToPlayable)
+        {
+            return distanceToPlayable switch
+            {
+                0 => 50,    // Immediately completable — huge threat
+                1 => 20,    // One disc away — very dangerous, hard to prevent
+                2 => 8,     // Two discs away — significant potential
+                _ => 3      // Far away — minor long-term potential
+            };
+        }
+
+        private static int ScoreTwoInRow(int distanceToPlayable)
+        {
+            return distanceToPlayable switch
+            {
+                0 => 8,     // Can extend immediately
+                1 => 4,     // Close to extending
+                _ => 2      // Far from relevant
+            };
         }
 
         private static ulong NextRandomULong(Random rng)
