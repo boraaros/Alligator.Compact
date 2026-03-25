@@ -60,8 +60,9 @@ searchManager.StartTimedSearch(timeBudgetMs);
 
         private (ICollection<TStep> OptimalSteps, int Value) BestNodeSearch(TPosition position, int guess)
         {
-            int alpha = -sbyte.MaxValue - maxDepth;
-            int beta = sbyte.MaxValue + maxDepth;
+            const int winScore = sbyte.MaxValue + 48; // must match AlphaBetaPruning.MaxSearchDepth
+            int alpha = -winScore;
+            int beta = winScore;
 
             IList<TStep> candidates = rules.LegalStepsAt(position).ToList();
 

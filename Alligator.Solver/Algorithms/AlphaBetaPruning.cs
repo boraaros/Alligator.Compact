@@ -46,7 +46,7 @@
             {
                 if (rules.IsGoal(position))
                 {
-                    return -(sbyte.MaxValue + depth);
+                    return -WinValue(depth);
                 }
                 return -HeuristicValue(position, depth);
             }
@@ -79,7 +79,7 @@
 
             if (orderedSteps.Count == 0)
             {
-                return -(rules.IsGoal(position) ? sbyte.MaxValue + depth : 0);
+                return -(rules.IsGoal(position) ? WinValue(depth) : 0);
             }
 
             var bestValue = -int.MaxValue;
@@ -187,6 +187,18 @@
         {
             int distanceFromRoot = searchManager.DepthLimit - depth;
             return distanceFromRoot % 2 != 0;
+        }
+
+        /// <summary>
+        /// Computes the terminal (win/loss) value at the given remaining depth.
+        /// Uses distance-from-root so the same game-theoretic outcome
+        /// produces the same value regardless of the current DepthLimit.
+        /// Closer wins score higher.
+        /// </summary>
+        private int WinValue(int depth)
+        {
+            int distanceFromRoot = searchManager.DepthLimit - depth;
+            return sbyte.MaxValue + MaxSearchDepth - distanceFromRoot;
         }
     }
 }
