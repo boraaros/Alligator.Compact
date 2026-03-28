@@ -3,19 +3,14 @@
     internal class HeuristicTables<TMove> : IHeuristicTables<TMove>
     {
         private readonly Dictionary<int, IList<TMove>> killerSteps;
-
-#pragma warning disable CS8714 // TMove satisfies notnull in practice (game steps are never null)
         private readonly Dictionary<TMove, int> historyScores;
-#pragma warning restore CS8714
 
         private const int StoredKillerStepsLimitPerDepth = 2;
 
         public HeuristicTables()
         {
             killerSteps = new Dictionary<int, IList<TMove>>();
-#pragma warning disable CS8714
             historyScores = new Dictionary<TMove, int>();
-#pragma warning restore CS8714
         }
 
         public void StoreBetaCutOff(TMove move, int depth)
