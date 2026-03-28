@@ -148,7 +148,7 @@ namespace Alligator.ConnectFour
         /// <summary>
         /// Heuristic evaluation: counts open windows of 2 and 3, with threat awareness.
         /// A 3-in-a-row where the completing cell is immediately playable scores much higher.
-        /// Returns value from current player's perspective.
+        /// Returns value always from Red's perspective (absolute convention expected by solver).
         /// </summary>
         private sbyte Evaluate()
         {
@@ -176,8 +176,8 @@ namespace Alligator.ConnectFour
             // Clamp to sbyte range (excluding MaxValue which is reserved for wins)
             score = Math.Clamp(score, -126, 126);
 
-            // Return from current player's perspective
-            return nextDisk == Disk.Red ? (sbyte)score : (sbyte)-score;
+            // Return from Red's perspective (absolute value convention)
+            return (sbyte)score;
         }
 
         private int EvaluateAllWindows(ref int redThreats, ref int yellowThreats)
