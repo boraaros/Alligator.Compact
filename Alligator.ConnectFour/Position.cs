@@ -2,10 +2,6 @@ using Alligator.Solver;
 
 namespace Alligator.ConnectFour
 {
-    /// <summary>
-    /// Connect Four board — 7 columns × 6 rows, discs drop from the top.
-    /// Uses Zobrist hashing for fast incremental hash updates.
-    /// </summary>
     public class Position : IPosition<Drop>
     {
         public const int Columns = 7;
@@ -13,27 +9,31 @@ namespace Alligator.ConnectFour
         public const int WinLength = 4;
 
         private readonly Disk[,] board;   // [row, col] — row 0 is the bottom
-        private readonly int[] heights;   // heights[col] = number of discs in that column
+        private readonly int[] heights;
 
         private Disk nextDisk;
         private ulong identifier;
 
         private readonly Stack<(int Column, ulong PrevIdentifier)> history;
 
-        // Zobrist: 2 colors × Rows × Columns random values
+
         private static readonly ulong[,,] zobristTable;
         private static readonly ulong zobristTurn;
 
-        // Number of 4-in-a-row windows passing through each cell.
-        // Center cells participate in far more winning lines than edges/corners.
+        // Positional weights: columnWeight[c] + (Rows - 1 - row).
+        // Column component = number of horizontal 4-windows through that column: {3,4,5,7,5,4,3}.
+        // Gravity component = lower rows score higher because they are filled first
+        // and threats there are more immediate.
+        // This avoids the "stacking penalty" where the opponent benefits from placing
+        // on top of your center disc (upper cells no longer outweigh lower ones).
         private static readonly int[,] cellWeights =
         {
-            { 3, 4, 5, 7, 5, 4, 3 },   // row 0 (bottom)
-            { 4, 6, 8, 10, 8, 6, 4 },
-            { 5, 8, 11, 13, 11, 8, 5 },
-            { 5, 8, 11, 13, 11, 8, 5 },
-            { 4, 6, 8, 10, 8, 6, 4 },
-            { 3, 4, 5, 7, 5, 4, 3 }    // row 5 (top)
+            {  8,  9, 10, 12, 10,  9,  8 },   // row 0 (bottom)
+            {  7,  8,  9, 11,  9,  8,  7 },
+            {  6,  7,  8, 10,  8,  7,  6 },
+            {  5,  6,  7,  9,  7,  6,  5 },
+            {  4,  5,  6,  8,  6,  5,  4 },
+            {  3,  4,  5,  7,  5,  4,  3 }    // row 5 (top)
         };
 
         static Position()

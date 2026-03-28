@@ -16,7 +16,6 @@ namespace Alligator.ConnectFour
                 yield break;
             }
 
-            // Yield center column first (better move ordering heuristic)
             int center = Position.Columns / 2;
 
             if (position.HeightAt(center) < Position.Rows)
@@ -24,7 +23,6 @@ namespace Alligator.ConnectFour
                 yield return Drop.At(center);
             }
 
-            // Then columns near center, expanding outward
             for (int offset = 1; offset <= Position.Columns / 2; offset++)
             {
                 int left = center - offset;

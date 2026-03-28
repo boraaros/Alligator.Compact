@@ -1,8 +1,5 @@
 namespace Alligator.ConnectFour
 {
-    /// <summary>
-    /// Represents a move in Connect Four — dropping a disc into a column.
-    /// </summary>
     public class Drop
     {
         public int Column { get; }
@@ -23,9 +20,6 @@ namespace Alligator.ConnectFour
             Column = column;
         }
 
-        /// <summary>
-        /// Returns the cached Drop instance for the given column.
-        /// </summary>
         public static Drop At(int column) => instances[column];
 
         public override bool Equals(object? obj)
