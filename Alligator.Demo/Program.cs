@@ -83,7 +83,7 @@ namespace Alligator.Demo
             {
                 try
                 {
-                    string[] msg = Console.ReadLine().Split(':');
+                    string[] msg = (Console.ReadLine() ?? string.Empty).Split(':');
                     return new Placement(int.Parse(msg[0]), int.Parse(msg[1]));
                 }
                 catch (Exception e)

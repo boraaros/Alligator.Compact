@@ -31,7 +31,7 @@
             get { return count; }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is not Step other)
             {

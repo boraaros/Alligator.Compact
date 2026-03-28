@@ -77,7 +77,7 @@
             }
 
             var bestValue = -int.MaxValue;
-            TStep bestStep = default;
+            TStep bestStep = orderedSteps[0];
 
             for (int i = 0; i < orderedSteps.Count; i++)
             {
@@ -117,7 +117,7 @@
 
             foreach (var move in rules.LegalStepsAt(position))
             {
-                if (hasTransposition && move.Equals(transpositionStep))
+                if (hasTransposition && move!.Equals(transpositionStep))
                 {
                     transpositionStepIsLegal = true;
                     continue;

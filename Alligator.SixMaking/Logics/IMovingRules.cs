@@ -1,4 +1,4 @@
-﻿using Alligator.SixMaking.Model;
+using Alligator.SixMaking.Model;
 
 namespace Alligator.SixMaking.Logics
 {

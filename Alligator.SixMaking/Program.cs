@@ -84,7 +84,7 @@ namespace Alligator.SixMaking
             {
                 try
                 {
-                    string[] msg = Console.ReadLine().Split(':');
+                    string[] msg = (Console.ReadLine() ?? string.Empty).Split(':');
                     int from = int.Parse(msg[0]);
                     int to = int.Parse(msg[1]);
                     int count = int.Parse(msg[2]);

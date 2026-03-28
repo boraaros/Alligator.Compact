@@ -2,7 +2,7 @@
 {
     internal class HeuristicTables<TMove> : IHeuristicTables<TMove>
     {
-        private readonly IDictionary<int, IList<TMove>> killerSteps;
+        private readonly Dictionary<int, IList<TMove>> killerSteps;
         private readonly Dictionary<TMove, int> historyScores;
 
         private const int StoredKillerStepsLimitPerDepth = 2;
@@ -21,8 +21,7 @@
 
         public IEnumerable<TMove> GetKillerSteps(int depth)
         {
-            IList<TMove> killers;
-            if (killerSteps.TryGetValue(depth, out killers))
+            if (killerSteps.TryGetValue(depth, out var killers))
             {
                 return killers;
             }
@@ -49,10 +48,9 @@
 
         private void UpdateKillerSteps(TMove move, int depth)
         {
-            IList<TMove> killers;
-            if (killerSteps.TryGetValue(depth, out killers))
+            if (killerSteps.TryGetValue(depth, out var killers))
             {
-                if (killers[0].Equals(move))
+                if (killers[0]!.Equals(move))
                 {
                     return;
                 }
