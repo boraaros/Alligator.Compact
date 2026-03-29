@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four</title>
+    <style>
+        :root {
+            --cell: 60px;
+            --gap: 6px;
+            --blue: #1565c0;
+            --bg: #1a1a2e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+        }
+        .frame {
+            background: var(--blue);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.4);
+        }
+        .drop-zone {
+            display: grid;
+            grid-template-columns: repeat(7, var(--cell));
+            gap: var(--gap);
+            margin-bottom: 8px;
+        }
+        .col-btn {
+            width: var(--cell);
+            height: 28px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,.3);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all .15s;
+            border-radius: 6px;
+        }
+        .col-btn:hover:not(:disabled) {
+            color: #fdd835;
+            background: rgba(255,255,255,.1);
+        }
+        .col-btn:disabled { cursor: default; opacity: .15; }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, var(--cell));
+            gap: var(--gap);
+        }
+        .cell {
+            width: var(--cell);
+            height: var(--cell);
+            border-radius: 50%;
+            background: var(--bg);
+        }
+        .cell.R { background: radial-gradient(circle at 38% 35%, #ff6b6b, #c62828); }
+        .cell.Y { background: radial-gradient(circle at 38% 35%, #fff9c4, #f9a825); }
+        .cell.last { box-shadow: 0 0 0 3px #fff, 0 0 12px rgba(255,255,255,.3); }
+        .status {
+            margin-top: 16px;
+            font-size: 1.15rem;
+            min-height: 1.6em;
+            text-align: center;
+        }
+        .btn {
+            margin-top: 12px;
+            padding: 10px 32px;
+            font-size: 1rem;
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .btn:hover { background: #1976d2; }
+        .btn:disabled { opacity: .5; cursor: default; }
+        @media (max-width: 520px) {
+            :root { --cell: 42px; --gap: 4px; }
+            h1 { font-size: 1.3rem; }
+            .col-btn { height: 24px; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <h1>&#x1F534; CONNECT FOUR &#x1F7E1;</h1>
+    <div class="frame">
+        <div class="drop-zone" id="columns"></div>
+        <div class="board" id="board"></div>
+    </div>
+    <div class="status" id="status">Loading...</div>
+    <button class="btn" id="newGameBtn" onclick="newGame()">New Game</button>
+
+    <script>
+        let busy = false;
+        let currentState = null;
+
+        async function api(path, method, body) {
+            const opts = { method, headers: { 'Content-Type': 'application/json' } };
+            if (body !== undefined) opts.body = JSON.stringify(body);
+            const res = await fetch('/api/' + path, opts);
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || 'Request failed');
+            }
+            return res.json();
+        }
+
+        function render(state) {
+            currentState = state;
+            const board = document.getElementById('board');
+            const columns = document.getElementById('columns');
+            board.innerHTML = '';
+            columns.innerHTML = '';
+
+            for (let c = 0; c < 7; c++) {
+                const btn = document.createElement('button');
+                btn.className = 'col-btn';
+                btn.textContent = '\u25BC';
+                const full = state.board[0][c] !== '';
+                btn.disabled = state.gameOver || full;
+                btn.onclick = () => makeMove(c);
+                columns.appendChild(btn);
+            }
+
+            for (let r = 0; r < state.board.length; r++) {
+                for (let c = 0; c < state.board[r].length; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if (state.board[r][c]) cell.classList.add(state.board[r][c]);
+                    board.appendChild(cell);
+                }
+            }
+
+            if (state.lastCpuColumn != null) {
+                for (let r = 0; r < state.board.length; r++) {
+                    if (state.board[r][state.lastCpuColumn] === 'R') {
+                        board.children[r * 7 + state.lastCpuColumn].classList.add('last');
+                        break;
+                    }
+                }
+            }
+
+            const status = document.getElementById('status');
+            if (state.gameOver) {
+                if (state.winner === 'Yellow') status.textContent = '\uD83D\uDFE1 You win! \uD83C\uDF89';
+                else if (state.winner === 'Red') status.textContent = '\uD83D\uDD34 CPU wins!';
+                else status.textContent = "It's a draw!";
+            } else {
+                status.textContent = '\uD83D\uDFE1 Your turn \u2014 pick a column';
+            }
+            document.getElementById('newGameBtn').disabled = false;
+        }
+
+        async function newGame() {
+            if (busy) return;
+            busy = true;
+            setBusy('Starting new game...');
+            try {
+                const state = await api('new', 'POST');
+                busy = false;
+                render(state);
+            } catch (e) {
+                busy = false;
+                showError(e);
+            }
+        }
+
+        async function makeMove(col) {
+            if (busy) return;
+            busy = true;
+            disableInput();
+            setBusy('\uD83D\uDD34 CPU is thinking...');
+            try {
+                const state = await api('move', 'POST', { column: col });
+                busy = false;
+                render(state);
+            } catch (e) {
+                busy = false;
+                showError(e);
+                if (currentState) render(currentState);
+            }
+        }
+
+        function setBusy(text) {
+            document.getElementById('status').textContent = text;
+            document.getElementById('newGameBtn').disabled = true;
+        }
+
+        function disableInput() {
+            document.querySelectorAll('.col-btn').forEach(b => b.disabled = true);
+        }
+
+        function showError(e) {
+            document.getElementById('status').textContent = '\u26A0\uFE0F ' + e.message;
+            document.getElementById('newGameBtn').disabled = false;
+        }
+
+        newGame();
+    </script>
+</body>
+</html>
