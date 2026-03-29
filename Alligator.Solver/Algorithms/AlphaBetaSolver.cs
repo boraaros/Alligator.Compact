@@ -9,23 +9,17 @@ namespace Alligator.Solver.Algorithms
         private readonly IRules<TPosition, TStep> rules;
         private readonly ISearchManager searchManager;
         private readonly Action<string> logger;
-        private readonly int maxDepth;
-        private readonly long timeBudgetMs;
 
         public AlphaBetaSolver(
             AlphaBetaPruning<TPosition, TStep> alphaBetaPruning,
             IRules<TPosition, TStep> rules,
             ISearchManager searchManager,
-            Action<string> logger,
-            int maxDepth,
-            long timeBudgetMs = 0)
+            Action<string> logger)
         {
             this.alphaBetaPruning = alphaBetaPruning ?? throw new ArgumentNullException(nameof(alphaBetaPruning));
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
             this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.maxDepth = maxDepth;
-            this.timeBudgetMs = timeBudgetMs;
         }
 
         public TStep OptimizeNextStep(IList<TStep> history)
@@ -34,12 +28,11 @@ namespace Alligator.Solver.Algorithms
             sw.Restart();
             var position = CreatePosition(history);
 
-TStep? bestStep = default;
-
-searchManager.StartTimedSearch(timeBudgetMs);
+            TStep? bestStep = default;
+            searchManager.StartSearch();
             var guess = 0;
 
-            for (int i = 2; i < maxDepth; i += 2) 
+            for (int i = 2; i < searchManager.MaxDepth; i += 2)
             {
                 searchManager.DepthLimit = i;
                 var (OptimalSteps, Value) = BestNodeSearch(position, guess);
@@ -60,7 +53,7 @@ searchManager.StartTimedSearch(timeBudgetMs);
 
         private (ICollection<TStep> OptimalSteps, int Value) BestNodeSearch(TPosition position, int guess)
         {
-            const int winScore = sbyte.MaxValue + 48; // must match AlphaBetaPruning.MaxSearchDepth
+            int winScore = sbyte.MaxValue + searchManager.MaxDepth;
             int alpha = -winScore;
             int beta = winScore;
 

@@ -8,7 +8,6 @@
         private readonly IHeuristicTables<TStep> heuristicTables;
         private readonly ISearchManager searchManager;
 
-        private const int MaxSearchDepth = 48;
         private readonly List<TStep>[] orderedStepBuffers;
 
         public AlphaBetaPruning(
@@ -22,8 +21,8 @@
             this.heuristicTables = heuristicTables ?? throw new ArgumentNullException(nameof(heuristicTables));
             this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
 
-            orderedStepBuffers = new List<TStep>[MaxSearchDepth];
-            for (int i = 0; i < MaxSearchDepth; i++)
+            orderedStepBuffers = new List<TStep>[searchManager.MaxDepth];
+            for (int i = 0; i < searchManager.MaxDepth; i++)
             {
                 orderedStepBuffers[i] = new List<TStep>();
             }
@@ -189,16 +188,11 @@
             return distanceFromRoot % 2 != 0;
         }
 
-        /// <summary>
-        /// Computes the terminal (win/loss) value at the given remaining depth.
-        /// Uses distance-from-root so the same game-theoretic outcome
-        /// produces the same value regardless of the current DepthLimit.
-        /// Closer wins score higher.
-        /// </summary>
+        // Distance-from-root makes this value independent of DepthLimit (important for TT consistency)
         private int WinValue(int depth)
         {
             int distanceFromRoot = searchManager.DepthLimit - depth;
-            return sbyte.MaxValue + MaxSearchDepth - distanceFromRoot;
+            return sbyte.MaxValue + searchManager.MaxDepth - distanceFromRoot;
         }
     }
 }

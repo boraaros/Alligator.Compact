@@ -16,11 +16,11 @@ namespace Alligator.Test
             var rules = new TreeRules(root);
             var cacheTables = new CacheTables<TreePosition, int>();
             var heuristicTables = new HeuristicTables<int>();
-var searchManager = new SearchManager(maxDepth - 1);
+var searchManager = new SearchManager(maxDepth);
 var alphaBeta = new AlphaBetaPruning<TreePosition, int>(
     rules, cacheTables, heuristicTables, searchManager);
 var solver = new AlphaBetaSolver<TreePosition, int>(
-    alphaBeta, rules, searchManager, _ => { }, maxDepth);
+    alphaBeta, rules, searchManager, _ => { });
 
             return solver.OptimizeNextStep([]);
         }

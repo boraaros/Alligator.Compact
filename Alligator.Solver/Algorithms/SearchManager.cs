@@ -5,23 +5,24 @@ namespace Alligator.Solver.Algorithms
     internal class SearchManager : ISearchManager
     {
         private readonly Stopwatch stopwatch = new();
-        private long timeLimitMs;
+        private readonly long timeLimitMs;
         private int nodeCount;
 
+        public int MaxDepth { get; }
         public int DepthLimit { get; set; }
         public bool IsAborted { get; private set; }
 
-        public SearchManager(int depthLimit)
+        public SearchManager(int maxDepth, TimeSpan? timeBudget = null)
         {
-            DepthLimit = depthLimit;
+            MaxDepth = maxDepth;
+            timeLimitMs = (long)(timeBudget?.TotalMilliseconds ?? 0);
         }
 
-        public void StartTimedSearch(long timeBudgetMs)
+        public void StartSearch()
         {
-            timeLimitMs = timeBudgetMs;
             nodeCount = 0;
             IsAborted = false;
-            if (timeBudgetMs > 0)
+            if (timeLimitMs > 0)
             {
                 stopwatch.Restart();
             }
