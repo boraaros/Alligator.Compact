@@ -143,7 +143,7 @@ namespace Alligator.ConnectFour
                             break;
                         case Disk.Red:
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.Write(" O");
+                            Console.Write(" X");
                             Console.ForegroundColor = ConsoleColor.White;
                             break;
                         case Disk.Yellow:

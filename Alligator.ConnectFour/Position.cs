@@ -16,24 +16,17 @@ namespace Alligator.ConnectFour
 
         private readonly Stack<(int Column, ulong PrevIdentifier)> history;
 
-
         private static readonly ulong[,,] zobristTable;
         private static readonly ulong zobristTurn;
 
-        // Positional weights: columnWeight[c] + (Rows - 1 - row).
-        // Column component = number of horizontal 4-windows through that column: {3,4,5,7,5,4,3}.
-        // Gravity component = lower rows score higher because they are filled first
-        // and threats there are more immediate.
-        // This avoids the "stacking penalty" where the opponent benefits from placing
-        // on top of your center disc (upper cells no longer outweigh lower ones).
         private static readonly int[,] cellWeights =
         {
-            {  8,  9, 10, 12, 10,  9,  8 },   // row 0 (bottom)
+            {  8,  9, 10, 12, 10,  9,  8 },
             {  7,  8,  9, 11,  9,  8,  7 },
             {  6,  7,  8, 10,  8,  7,  6 },
             {  5,  6,  7,  9,  7,  6,  5 },
             {  4,  5,  6,  8,  6,  5,  4 },
-            {  3,  4,  5,  7,  5,  4,  3 }    // row 5 (top)
+            {  3,  4,  5,  7,  5,  4,  3 }
         };
 
         static Position()
@@ -68,10 +61,7 @@ namespace Alligator.ConnectFour
 
         public int MoveCount => history.Count;
 
-        /// <summary>
-        /// Static evaluation from the current player's perspective.
-        /// Positive = good for the player to move.
-        /// </summary>
+        // Always from Red's perspective (absolute convention expected by solver)
         public sbyte Value => Evaluate();
 
         public void Take(Drop step)
@@ -109,9 +99,6 @@ namespace Alligator.ConnectFour
 
         public bool IsBoardFull => history.Count == Rows * Columns;
 
-        /// <summary>
-        /// Checks if the last move created a 4-in-a-row.
-        /// </summary>
         public bool HasWinner()
         {
             if (history.Count == 0)
@@ -145,17 +132,10 @@ namespace Alligator.ConnectFour
             return count;
         }
 
-        /// <summary>
-        /// Heuristic evaluation: counts open windows of 2 and 3, with threat awareness.
-        /// A 3-in-a-row where the completing cell is immediately playable scores much higher.
-        /// Returns value always from Red's perspective (absolute convention expected by solver).
-        /// </summary>
         private sbyte Evaluate()
         {
             int score = 0;
 
-            // Positional quality: weight each disc by how many winning lines pass through its cell.
-            // A disc at the center (weight 13) is far more valuable than one in the corner (weight 3).
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Columns; c++)
@@ -165,18 +145,15 @@ namespace Alligator.ConnectFour
                 }
             }
 
-            // Evaluate all windows of 4 with threat detection
             int redThreats = 0, yellowThreats = 0;
             score += EvaluateAllWindows(ref redThreats, ref yellowThreats);
 
-            // Double threat bonus: two simultaneous immediate threats = opponent can only block one = forced win
             if (redThreats >= 2) score += 80;
             if (yellowThreats >= 2) score -= 80;
 
-            // Clamp to sbyte range (excluding MaxValue which is reserved for wins)
+            // sbyte.MaxValue is reserved for wins
             score = Math.Clamp(score, -126, 126);
 
-            // Return from Red's perspective (absolute value convention)
             return (sbyte)score;
         }
 
@@ -184,7 +161,6 @@ namespace Alligator.ConnectFour
         {
             int score = 0;
 
-            // Horizontal windows
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c <= Columns - WinLength; c++)
@@ -193,7 +169,6 @@ namespace Alligator.ConnectFour
                 }
             }
 
-            // Vertical windows
             for (int c = 0; c < Columns; c++)
             {
                 for (int r = 0; r <= Rows - WinLength; r++)
@@ -202,7 +177,6 @@ namespace Alligator.ConnectFour
                 }
             }
 
-            // Diagonal (bottom-left to top-right)
             for (int r = 0; r <= Rows - WinLength; r++)
             {
                 for (int c = 0; c <= Columns - WinLength; c++)
@@ -211,7 +185,6 @@ namespace Alligator.ConnectFour
                 }
             }
 
-            // Anti-diagonal (top-left to bottom-right)
             for (int r = WinLength - 1; r < Rows; r++)
             {
                 for (int c = 0; c <= Columns - WinLength; c++)
@@ -243,7 +216,7 @@ namespace Alligator.ConnectFour
                 }
             }
 
-            if (red > 0 && yellow > 0) return 0; // Blocked window
+            if (red > 0 && yellow > 0) return 0;
 
             if (red == 3)
             {
@@ -265,10 +238,10 @@ namespace Alligator.ConnectFour
         {
             return distanceToPlayable switch
             {
-                0 => 50,    // Immediately completable — huge threat
-                1 => 20,    // One disc away — very dangerous, hard to prevent
-                2 => 8,     // Two discs away — significant potential
-                _ => 3      // Far away — minor long-term potential
+                0 => 50,
+                1 => 20,
+                2 => 8,
+                _ => 3
             };
         }
 
@@ -276,9 +249,9 @@ namespace Alligator.ConnectFour
         {
             return distanceToPlayable switch
             {
-                0 => 8,     // Can extend immediately
-                1 => 4,     // Close to extending
-                _ => 2      // Far from relevant
+                0 => 8,
+                1 => 4,
+                _ => 2
             };
         }
 
