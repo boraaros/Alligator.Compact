@@ -41,14 +41,15 @@ namespace Alligator.Solver
 
         internal ISolver<TStep> Create(ICacheTables<TPosition, TStep> cacheTables, IHeuristicTables<TStep> heuristicTables)
         {
-            var searchManager = new SearchManager(6); // TODO: remove this ctor parameter
+            var searchManager = new SearchManager(
+                solverConfiguration.MaxDepth,
+                solverConfiguration.TimeBudget);
 
             return new AlphaBetaSolver<TPosition, TStep>(
-                new AlphaBetaPruning<TPosition, TStep>(rules, cacheTables, heuristicTables, searchManager), 
-                rules, 
-                searchManager, 
-                logger,
-                solverConfiguration.MaxDepth);
+                new AlphaBetaPruning<TPosition, TStep>(rules, cacheTables, heuristicTables, searchManager),
+                rules,
+                searchManager,
+                logger);
         }
     }
 }

@@ -8,7 +8,6 @@
         private readonly IHeuristicTables<TStep> heuristicTables;
         private readonly ISearchManager searchManager;
 
-        private const int MaxSearchDepth = 16;
         private readonly List<TStep>[] orderedStepBuffers;
 
         public AlphaBetaPruning(
@@ -22,8 +21,8 @@
             this.heuristicTables = heuristicTables ?? throw new ArgumentNullException(nameof(heuristicTables));
             this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
 
-            orderedStepBuffers = new List<TStep>[MaxSearchDepth];
-            for (int i = 0; i < MaxSearchDepth; i++)
+            orderedStepBuffers = new List<TStep>[searchManager.MaxDepth];
+            for (int i = 0; i < searchManager.MaxDepth; i++)
             {
                 orderedStepBuffers[i] = new List<TStep>();
             }
@@ -36,11 +35,17 @@
 
         private int SearchRecursively(TPosition position, int depth, int alpha, int beta)
         {
+            searchManager.CheckTimeBudget();
+            if (searchManager.IsAborted)
+            {
+                return 0;
+            }
+
             if (depth <= 0)
             {
                 if (rules.IsGoal(position))
                 {
-                    return -(sbyte.MaxValue + depth);
+                    return -WinValue(depth);
                 }
                 return -HeuristicValue(position, depth);
             }
@@ -73,7 +78,7 @@
 
             if (orderedSteps.Count == 0)
             {
-                return -(rules.IsGoal(position) ? sbyte.MaxValue + depth : 0);
+                return -(rules.IsGoal(position) ? WinValue(depth) : 0);
             }
 
             var bestValue = -int.MaxValue;
@@ -98,7 +103,7 @@
                     break;
                 }
             }
-            if (depth > 1)
+            if (depth > 1 && !searchManager.IsAborted)
             {
                 var newTransposition = new Transposition<TStep>(GetEvaluationMode(bestValue, originalAlpha, beta), bestValue, depth, bestStep);
                 cacheTables.AddTransposition(position, newTransposition);
@@ -181,6 +186,13 @@
         {
             int distanceFromRoot = searchManager.DepthLimit - depth;
             return distanceFromRoot % 2 != 0;
+        }
+
+        // Distance-from-root makes this value independent of DepthLimit (important for TT consistency)
+        private int WinValue(int depth)
+        {
+            int distanceFromRoot = searchManager.DepthLimit - depth;
+            return sbyte.MaxValue + searchManager.MaxDepth - distanceFromRoot;
         }
     }
 }
