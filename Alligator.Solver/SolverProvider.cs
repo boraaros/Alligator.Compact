@@ -47,7 +47,8 @@ namespace Alligator.Solver
                 new AlphaBetaPruning<TPosition, TStep>(rules, cacheTables, heuristicTables, searchManager), 
                 rules, 
                 searchManager, 
-                logger);
+                logger,
+                solverConfiguration.MaxDepth);
         }
     }
 }

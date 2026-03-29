@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32811.315
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11620.152 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alligator.Solver", "Alligator.Solver\Alligator.Solver.csproj", "{683DE064-2731-4553-81F5-813840788C74}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alligator.Benchmark", "Alligator.Benchmark\Alligator.Benchmark.csproj", "{BEA87A2B-B421-4253-A426-81226C3025C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alligator.TicTacToe", "Alligator.TicTacToe\Alligator.TicTacToe.csproj", "{28060B42-B42E-4C1C-895C-FD0B0C656553}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alligator.ConnectFour", "Alligator.ConnectFour\Alligator.ConnectFour.csproj", "{9BB16125-E04A-4F2A-CDEA-DA954DCD6453}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{28060B42-B42E-4C1C-895C-FD0B0C656553}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28060B42-B42E-4C1C-895C-FD0B0C656553}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28060B42-B42E-4C1C-895C-FD0B0C656553}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BB16125-E04A-4F2A-CDEA-DA954DCD6453}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BB16125-E04A-4F2A-CDEA-DA954DCD6453}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BB16125-E04A-4F2A-CDEA-DA954DCD6453}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BB16125-E04A-4F2A-CDEA-DA954DCD6453}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

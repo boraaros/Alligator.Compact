@@ -9,19 +9,20 @@ namespace Alligator.Solver.Algorithms
         private readonly IRules<TPosition, TStep> rules;
         private readonly ISearchManager searchManager;
         private readonly Action<string> logger;
-
-        private const int maxDepth = 7; // TODO: magic number!
+        private readonly int maxDepth;
 
         public AlphaBetaSolver(
             AlphaBetaPruning<TPosition, TStep> alphaBetaPruning,
             IRules<TPosition, TStep> rules,
             ISearchManager searchManager,
-            Action<string> logger)
+            Action<string> logger,
+            int maxDepth)
         {
             this.alphaBetaPruning = alphaBetaPruning ?? throw new ArgumentNullException(nameof(alphaBetaPruning));
             this.rules = rules ?? throw new ArgumentNullException(nameof(rules));
             this.searchManager = searchManager ?? throw new ArgumentNullException(nameof(searchManager));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.maxDepth = maxDepth;
         }
 
         public TStep OptimizeNextStep(IList<TStep> history)

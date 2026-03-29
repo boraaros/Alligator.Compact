@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Alligator.Solver\Alligator.Solver.csproj" />
     <ProjectReference Include="..\Alligator.TicTacToe\Alligator.TicTacToe.csproj" />
+    <ProjectReference Include="..\Alligator.ConnectFour\Alligator.ConnectFour.csproj" />
   </ItemGroup>
 
 </Project>
