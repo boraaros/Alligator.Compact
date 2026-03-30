@@ -2,6 +2,7 @@ using Alligator.ConnectFour.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls("http://localhost:5000");
 builder.Services.AddSingleton<GameService>();
 
 var app = builder.Build();

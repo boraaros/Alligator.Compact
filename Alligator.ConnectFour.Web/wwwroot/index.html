@@ -183,8 +183,11 @@
         async function makeMove(col) {
             if (busy) return;
             busy = true;
+
+            showHumanMove(col);
             disableInput();
             setBusy('\uD83D\uDD34 CPU is thinking...');
+
             try {
                 const state = await api('move', 'POST', { column: col });
                 busy = false;
@@ -193,6 +196,18 @@
                 busy = false;
                 showError(e);
                 if (currentState) render(currentState);
+            }
+        }
+
+        function showHumanMove(col) {
+            const board = currentState.board;
+            for (let r = board.length - 1; r >= 0; r--) {
+                if (board[r][col] === '') {
+                    const idx = r * 7 + col;
+                    const cell = document.getElementById('board').children[idx];
+                    cell.classList.add('Y', 'last');
+                    break;
+                }
             }
         }
 
