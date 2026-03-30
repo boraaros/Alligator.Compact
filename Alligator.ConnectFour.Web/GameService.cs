@@ -114,7 +114,7 @@ public class GameService
         };
     }
 
-    private class WebConfiguration : IConfiguration
+    private class WebConfiguration : Alligator.Solver.IConfiguration
     {
         public int MaxDepth => 43;
         public TimeSpan? TimeBudget => TimeSpan.FromSeconds(5);
